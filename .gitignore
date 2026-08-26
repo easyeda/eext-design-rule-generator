@@ -1,0 +1,18 @@
+/.vscode/*
+!/.vscode/extensions.json
+!/.vscode/settings.json
+/coverage/
+/dist/
+/node_modules/
+/.eslintcache
+debug.log
+
+# Debug / probe artifacts
+/.api-probe.json
+/.pwr-probe.json
+/.rule-structure-after.json
+/.live-current-rules.json
+/.sdk-manifest.json
+/.hermes/
+tmp-jlc-trace.py
+tmp-jlc/

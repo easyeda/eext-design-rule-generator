@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>一键设计规则</title>
+	<link rel="stylesheet" href="/iframe/styles.css">
+</head>
+<body>
+	<main class="shell">
+		<section class="command-bar panel">
+			<button class="btn primary" id="scanBtn">扫描当前 PCB</button>
+			<button class="btn" id="calculateBtn" disabled>计算设计规则</button>
+			<button class="btn" id="previewBtn" disabled>重新生成预览</button>
+			<button class="btn apply" id="applyBtn" disabled>应用设计规则</button>
+			<button class="btn danger" id="restoreBtn">恢复上次备份</button>
+			<div class="command-meta">
+				<div class="status-card"><span id="statusDot"></span><div><strong id="statusTitle">准备扫描</strong><small id="statusDetail">未修改任何设计规则</small></div></div>
+			</div>
+		</section>
+
+		<div class="progress-wrap" id="progressWrap" hidden>
+			<div class="progress-head"><span id="progressLabel">就绪</span><span id="progressPct">0%</span></div>
+			<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+		</div>
+
+		<section class="layout">
+			<div class="main-column">
+				<section class="panel section stack-config">
+					<div class="section-head"><div><span>ST</span><h2>叠层选择</h2></div><small>按层数关联板厚与结构</small></div>
+					<div class="form-grid board-grid">
+						<label>层数<select id="layers"><option>2</option><option selected>4</option><option>6</option><option>8</option><option>10</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>22</option><option>24</option><option>26</option><option>28</option><option>30</option><option>32</option><option>34</option><option>36</option><option>38</option><option>40</option><option>42</option><option>44</option><option>46</option><option>48</option><option>50</option><option>52</option><option>54</option><option>56</option><option>58</option><option>60</option><option>62</option><option>64</option></select></label>
+						<label>成品板厚 / mm<select id="thickness"></select></label>
+						<label>叠层选择方式<select id="stackMode"><option value="auto">自动推荐最佳叠层</option><option value="manual">用户指定叠层</option></select></label>
+						<label>指定叠层<select id="stackTemplate" disabled><option value="">请先匹配叠层</option></select></label>
+					</div>
+					<details class="advanced-settings" id="stackupSettings">
+						<summary>叠层制造参数（默认折叠）</summary>
+						<div class="form-grid">
+							<label>板材<select id="boardType"><option value="1">硬板</option><option value="3">HDI</option></select></label>
+							<label>外层铜厚 / oz<input id="outerOz" type="number" value="1" step="0.5"></label>
+							<label>内层铜厚 / oz<input id="innerOz" type="number" value="0.5" step="0.5"></label>
+							<label>参考介质厚 / mm<input id="dielectricHeight" type="number" value="0.18" step="0.01"></label>
+							<label>Dk<input id="er" type="number" value="4.2" step="0.1"></label>
+						</div>
+					</details>
+					<div id="stackPreview" class="stack-preview"></div>
+				</section>
+
+				<section class="panel section power-config">
+					<div class="section-head"><div><span>00</span><h2>电源配置</h2></div><small>IPC 载流线宽</small></div>
+					<div class="form-grid board-grid">
+						<label>预计电流 / A<input id="pwrCurrent" type="number" value="2" step="0.1" min="0.1"></label>
+						<label>线路长度 / mm<input id="pwrLength" type="number" value="50" step="1" min="1"></label>
+						<label>线路铜厚<select id="pwrCopperOz"><option value="12">0.33oz（12μm）</option><option value="18">0.5oz（18μm）</option><option value="35" selected>1.0oz（35μm）</option><option value="70">2.0oz（70μm）</option></select></label>
+						<label>跟踪层<select id="pwrLayerType"><option value="external">外层</option><option value="internal">内层</option></select></label>
+						<label>环境温度 / °C<input id="pwrAmbient" type="number" value="25" step="1" min="-40" max="150"></label>
+						<label>允许温升 / °C<input id="pwrTempRise" type="number" value="20" step="1" min="1"></label>
+					</div>
+					<div id="pwrResult" class="pwr-result" style="margin-top:8px"></div>
+				</section>
+
+				<section class="panel section">
+					<div class="section-head"><div><span>01</span><h2>板级与阻抗参数</h2></div><small>叠层数据完全离线</small></div>
+					<div class="form-grid board-grid">
+						<label class="checkbox-label"><input type="checkbox" id="widthGapComplement"> 线宽线距互补</label>
+						<label>参考层补全<select id="referenceMode"><option value="custom" selected>自定义</option><option value="ground">自动以地层作为参考层</option><option value="adjacent">自动以相邻层作为参考层</option></select></label>
+					</div>
+					<p class="hint">阻抗模式与嘉立创计算器一致，共 12 种。勾选线宽线距互补时填入 W1 初始值，系统自动修正 W1 使阻抗等于目标；不勾选时自动反算 W1。S1 仅差分使用，D1 仅共面模式使用。</p>
+					<div class="table-wrap"><table><thead><tr><th>阻抗类型</th><th>目标 Ω</th><th>网络</th><th>阻抗层</th><th>上参考层</th><th>下参考层</th><th>线宽 W1 / mil</th><th>线距 S1 / mil</th><th>到铜 D1 / mil</th></tr></thead><tbody id="impedanceRows"><tr><td colspan="9" class="empty">请先扫描 PCB</td></tr></tbody></table></div>
+				</section>
+
+				<section class="panel section">
+					<div class="section-head"><div><span>02</span><h2>叠层方案与设计规则</h2></div><small id="planMeta">计算后选择方案</small></div>
+					<div class="stack-choice"><b id="stackTitle">尚未匹配叠层</b><span id="stackMeta">计算后展示候选方案</span></div>
+					<details class="advanced-settings" id="planSettings">
+						<summary>候选叠层方案（默认折叠）</summary>
+						<div id="planCards" class="stack-cards"><p class="empty small">填写阻抗输入后点击“计算设计规则”</p></div>
+					</details>
+				</section>
+
+				<section class="panel section">
+					<div class="section-head"><div><span>03</span><h2>网络识别结果</h2></div><small id="netCount">0 个网络</small></div>
+					<p class="hint">先扫描当前 PCB，识别表格展示全部网络的分类、推荐线宽与告警。</p>
+					<div class="filters"><button class="chip active" data-filter="all">全部</button><button class="chip" data-filter="differential">差分</button><button class="chip" data-filter="impedance">阻抗</button><button class="chip" data-filter="power">电源</button><button class="chip" data-filter="ground">地</button><button class="chip" data-filter="signal">普通</button></div>
+					<div class="table-wrap"><table><thead><tr><th>网络</th><th>识别类别</th><th>伙伴 / 目标</th><th>推荐线宽</th><th>规则配置</th><th>状态</th></tr></thead><tbody id="netRows"><tr><td colspan="6" class="empty">点击“扫描当前 PCB”开始</td></tr></tbody></table></div>
+				</section>
+			</div>
+
+			<aside class="side-column">
+				<section class="panel summary-card">
+					<p class="eyebrow">CHANGESET</p><h2>变更摘要</h2>
+					<div class="metric-grid"><div><strong id="ruleMetric">0</strong><span>规则配置</span></div><div><strong id="netMetric">0</strong><span>受控网络</span></div><div><strong id="pairMetric">0</strong><span>差分对</span></div><div><strong id="warningMetric">0</strong><span>告警</span></div></div>
+					<div id="ruleCards" class="rule-cards"><p class="empty small">暂无规则计划</p></div>
+				</section>
+			<section class="panel note-card"><b>命名识别</b><p><code>_P/_N</code>、<code>_DP/_DM</code> 自动配对；USB 默认 90 Ω，其它差分默认 100 Ω；<code>_Z50</code> 等标签指定单端阻抗。</p><details class="advanced-settings compact"><summary>自定义命名规则（默认折叠）</summary><div class="form-grid"><label>规则 JSON<textarea id="customRules" rows="6" spellcheck="false" placeholder='[{"pattern":"^LVDS","kind":"differential","positiveSuffix":"_P","negativeSuffix":"_N","targetOhms":100}]'></textarea></label></div><p class="hint">kind 可选 differential / impedance / power / ground；differential 需提供 positiveSuffix、negativeSuffix、targetOhms；impedance 需提供 targetOhms。规则优先于内置识别。</p></details><b>制造提醒</b><p>阻抗值为工程初值。正式投板前仍需由板厂按最终叠层、阻焊和蚀刻补偿复核。</p></section>
+			<section class="panel note-card"><label class="checkbox-label"><input type="checkbox" id="aiEnabled"> 启用 AI 一键配置</label><details class="advanced-settings" id="aiSettings"><summary>AI 配置（OpenAI 兼容 API，默认折叠）</summary><div class="form-grid"><label>API Base URL<input id="aiBaseUrl" type="text" value="https://api.openai.com/v1" placeholder="https://api.openai.com/v1"></label><label>API Key<input id="aiApiKey" type="password" placeholder="sk-..."></label><label>模型<input id="aiModel" type="text" value="gpt-4o-mini"></label><label>温度<input id="aiTemperature" type="number" value="0.2" step="0.1" min="0" max="2"></label></div><button class="btn" id="aiTestBtn" type="button">测试连接</button><p class="hint">API Key 仅保存在本机 EasyEDA 扩展配置中，不会上传到任何第三方。兼容所有 OpenAI /chat/completions 格式端点。</p></details></section>
+			</aside>
+		</section>
+	</main>
+	<div class="toast" id="toast"></div>
+	<script src="/iframe/stackups.js"></script>
+	<script src="/iframe/jlc-models.js"></script>
+	<script src="/iframe/layer-thickness.js"></script>
+	<script src="/iframe/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+{
+	"name": "eext-auto-design-rules",
+	"uuid": "a17d5c349e674b8bb253a958c213a980",
+	"displayName": "智能设计规则",
+	"description": "自动按网络命名与离线阻抗计算自动分配 PCB 设计规则",
+	"version": "1.0.0",
+	"publisher": "EasyEDA",
+	"engines": {
+		"eda": "^3.2.0"
+	},
+	"license": "Apache-2.0",
+	"repository": {
+		"type": "github",
+		"url": "https://github.com/easyeda/eext-auto-design-rules"
+	},
+	"categories": "PCB",
+	"keywords": [
+		"PCB",
+		"Design Rules",
+		"Impedance"
+	],
+	"images": {
+		"logo": "./images/logo.png"
+	},
+	"homepage": "https://github.com/easyeda",
+	"bugs": "https://github.com/easyeda/eext-auto-design-rules/issues",
+	"activationEvents": {},
+	"entry": "./dist/index",
+	"dependentExtensions": {},
+	"headerMenus": {
+		"pcb": [
+			{
+				"id": "adr-tools",
+				"title": "Auto Design Rules",
+				"menuItems": [
+					{
+						"id": "adr-open-workbench",
+						"title": "Assign Design Rules...",
+						"registerFn": "openRuleWorkbench"
+					},
+					{
+						"id": "adr-restore-backup",
+						"title": "Restore Rule Backup...",
+						"registerFn": "restoreRuleBackup"
+					},
+					{
+						"id": "adr-about",
+						"title": "About...",
+						"registerFn": "about"
+					}
+				]
+			}
+		]
+	}
+}

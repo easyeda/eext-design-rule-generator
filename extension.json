@@ -35,13 +35,8 @@
 				"menuItems": [
 					{
 						"id": "adr-open-workbench",
-						"title": "Assign Design Rules...",
+						"title": "open...",
 						"registerFn": "openRuleWorkbench"
-					},
-					{
-						"id": "adr-restore-backup",
-						"title": "Restore Rule Backup...",
-						"registerFn": "restoreRuleBackup"
 					},
 					{
 						"id": "adr-about",

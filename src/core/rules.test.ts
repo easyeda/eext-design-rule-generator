@@ -72,6 +72,27 @@ describe('classifyNets', () => {
 		expect(result.find(item => item.net === 'GPIO12')?.category).toBe('signal');
 	});
 
+	it('recognizes common high-speed interfaces and their standard differential impedance', () => {
+		const result = classifyNets([
+			'PCIE0_TX_P', 'PCIE0_TX_N',
+			'USB3_SSTX_P', 'USB3_SSTX_N',
+			'SATA_RXP', 'SATA_RXN',
+			'HDMI_TX2+', 'HDMI_TX2-',
+		]);
+		expect(result.find(item => item.net === 'PCIE0_TX_P')).toMatchObject({ category: 'differential', mate: 'PCIE0_TX_N', targetOhms: 85 });
+		expect(result.find(item => item.net === 'USB3_SSTX_P')).toMatchObject({ category: 'differential', mate: 'USB3_SSTX_N', targetOhms: 90 });
+		expect(result.find(item => item.net === 'SATA_RXP')).toMatchObject({ category: 'differential', mate: 'SATA_RXN', targetOhms: 100 });
+		expect(result.find(item => item.net === 'HDMI_TX2+')).toMatchObject({ category: 'differential', mate: 'HDMI_TX2-', targetOhms: 100 });
+	});
+
+	it('recognizes common board power rail naming styles', () => {
+		const powerNets = ['VBUS', 'VUSB', 'VCORE', 'VDDA', 'VDDD', 'VCCA', 'VSYS', 'PWR_5V', 'SYS_3V3', '1V8_AON', 'DDR_VTT', 'VREF_DDR'];
+		const result = classifyNets([...powerNets, 'PCIE_CLKREQ']);
+		for (const net of powerNets)
+			expect(result.find(item => item.net === net)?.category, net).toBe('power');
+		expect(result.find(item => item.net === 'PCIE_CLKREQ')?.category).toBe('signal');
+	});
+
 	it('does not create a differential pair for an orphan suffix', () => {
 		const result = classifyNets(['ONLY_P']);
 		expect(result[0]).toMatchObject({ category: 'signal' });

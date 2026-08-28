@@ -1,9 +1,9 @@
 {
-	"name": "eext-auto-design-rules",
+	"name": "eext-design-rule-generator",
 	"uuid": "a17d5c349e674b8bb253a958c213a980",
-	"displayName": "智能设计规则",
-	"description": "自动按网络命名与离线阻抗计算自动分配 PCB 设计规则",
-	"version": "1.0.0",
+	"displayName": "设计规则生成器",
+	"description": "自动按网络命名、预计电流、叠层进行基于RBF模型构建的离线阻抗、线宽、过孔尺寸计算并自动创建PCB设计规则",
+	"version": "1.8.2",
 	"publisher": "EasyEDA",
 	"engines": {
 		"eda": "^3.2.0"

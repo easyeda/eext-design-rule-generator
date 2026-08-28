@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>一键设计规则</title>
+	<title>设计规则生成器</title>
 	<link rel="stylesheet" href="/iframe/styles.css">
 </head>
 <body>
@@ -61,12 +61,11 @@
 				</section>
 
 				<section class="panel section">
-					<div class="section-head"><div><span>01</span><h2>板级与阻抗参数</h2></div><small>叠层数据完全离线</small></div>
+					<div class="section-head"><div><span>01</span><h2>板级与阻抗参数</h2></div><button class="btn section-action" id="addImpedanceBtn" type="button">+ 新增</button><small>叠层数据完全离线</small></div>
 					<div class="form-grid board-grid">
 						<label class="checkbox-label"><input type="checkbox" id="widthGapComplement"> 线宽线距互补</label>
 						<label>参考层补全<select id="referenceMode"><option value="custom" selected>自定义</option><option value="ground">自动以地层作为参考层</option><option value="adjacent">自动以相邻层作为参考层</option></select></label>
 					</div>
-					<p class="hint">阻抗模式与嘉立创计算器一致，共 12 种。勾选线宽线距互补时填入 W1 初始值，系统自动修正 W1 使阻抗等于目标；不勾选时自动反算 W1。S1 仅差分使用，D1 仅共面模式使用。</p>
 					<div class="table-wrap"><table><thead><tr><th>阻抗类型</th><th>目标 Ω</th><th>网络</th><th>阻抗层</th><th>上参考层</th><th>下参考层</th><th>线宽 W1 / mil</th><th>线距 S1 / mil</th><th>到铜 D1 / mil</th></tr></thead><tbody id="impedanceRows"><tr><td colspan="9" class="empty">请先扫描 PCB</td></tr></tbody></table></div>
 				</section>
 
@@ -99,6 +98,18 @@
 		</section>
 	</main>
 	<div class="toast" id="toast"></div>
+	<div class="modal-backdrop" id="impedanceModal" hidden>
+		<section class="modal" role="dialog" aria-modal="true" aria-labelledby="impedanceModalTitle">
+			<div class="modal-head"><h2 id="impedanceModalTitle">新增阻抗规则</h2><button class="modal-close" id="closeImpedanceBtn" type="button" aria-label="关闭">×</button></div>
+			<div class="form-grid">
+				<label>阻抗类型<select id="manualDifferential"><option value="0">单端阻抗</option><option value="1">差分阻抗</option></select></label>
+				<label>目标阻抗 / Ω<input id="manualTarget" type="number" value="50" step="1" min="20" max="90"></label>
+			</div>
+			<label class="modal-field">网络名（多个网络用逗号或空格分隔）<textarea id="manualNets" rows="4" placeholder="例如：MIPI_D0_P, MIPI_D0_N"></textarea></label>
+			<p class="hint" id="manualNetsHint">只允许填写当前扫描到的网络。</p>
+			<div class="modal-actions"><button class="btn" id="cancelImpedanceBtn" type="button">取消</button><button class="btn primary" id="saveImpedanceBtn" type="button">添加规则</button></div>
+		</section>
+	</div>
 	<script src="/iframe/stackups.js"></script>
 	<script src="/iframe/jlc-models.js"></script>
 	<script src="/iframe/layer-thickness.js"></script>

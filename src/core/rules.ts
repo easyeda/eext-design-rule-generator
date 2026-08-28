@@ -45,12 +45,13 @@ type JsonRecord = Record<string, any>;
 
 const explicitImpedancePattern = /(?:^|_)Z(\d{2,3})D?(?:_|$)/i;
 const groundPattern = /^(?:GND|AGND|DGND|PGND|GNDA|GNDD)(?:$|[_-])/i;
-const powerPattern = /^(?:\+?\d+(?:V\d+|V)|VCC|VDD|VSS|VBAT|VIN|VOUT|AVDD|DVDD|PVDD)(?:$|[_-])/i;
+const powerPattern = /(?:^|[_+-])(?:\d+(?:V\d+|V)|VCC|VDD|VSS|VBAT|VIN|VOUT|AVDD|DVDD|PVDD|VBUS|VUSB|VCORE|VDDA|VDDD|VCCA|VSSA|VSYS|VMAIN|VRTC|VIO|VREF|VTT|VPP|VEE|VNN|VPOS|VNEG|PWR|POWER)(?:$|[_-])/i;
 
 const pairSuffixes = [
 	{ positive: /_DP$/i, negativeSuffix: '_DM', keySuffix: '_D' },
 	{ positive: /_P$/i, negativeSuffix: '_N', keySuffix: '' },
 	{ positive: /P$/i, negativeSuffix: 'N', keySuffix: '' },
+	{ positive: /\+$/, negativeSuffix: '-', keySuffix: '' },
 ];
 
 function profileNumber(value: number): string {
@@ -60,6 +61,8 @@ function profileNumber(value: number): string {
 function differentialTarget(net: string, explicit?: number): number {
 	if (explicit)
 		return explicit;
+	if (/PCIE|PCI_E|PEX/i.test(net))
+		return 85;
 	if (/USB/i.test(net))
 		return 90;
 	return 100;
@@ -82,6 +85,7 @@ function findPositiveMate(net: string, allNets: Set<string>): { mate: string; pa
 		{ negative: /_DM$/i, positiveSuffix: '_DP', keySuffix: '_D' },
 		{ negative: /_N$/i, positiveSuffix: '_P', keySuffix: '' },
 		{ negative: /N$/i, positiveSuffix: 'P', keySuffix: '' },
+		{ negative: /-$/, positiveSuffix: '+', keySuffix: '' },
 	];
 	for (const suffix of candidates) {
 		if (!suffix.negative.test(net))
@@ -131,7 +135,7 @@ export function classifyNets(nets: string[]): ClassifiedNet[] {
 		}
 		if (explicit)
 			return { net, category: 'impedance', targetOhms: explicitTarget, warnings };
-		if (/(?:_P|_N|_DP|_DM)$/i.test(net))
+		if (/(?:_P|_N|_DP|_DM|\+|-)$/i.test(net))
 			warnings.push('疑似差分网络，但未找到对应的另一端');
 		return { net, category: 'signal', warnings };
 	});

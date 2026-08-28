@@ -67,13 +67,14 @@
 				return { net, category: custom.kind === 'power' ? 'power' : custom.kind === 'ground' ? 'ground' : 'impedance', targetOhms: custom.kind === 'impedance' ? custom.targetOhms : undefined, warnings: [] };
 			}
 			if (/^(?:GND|AGND|DGND|PGND|GNDA|GNDD)(?:$|[_-])/i.test(net)) return { net, category: 'ground', warnings: [] };
-			if (/^(?:\+?\d+(?:V\d+|V)|VCC|VDD|VSS|VBAT|VIN|VOUT|AVDD|DVDD|PVDD)(?:$|[_-])/i.test(net)) return { net, category: 'power', warnings: [] };
+			if (/(?:^|[_+-])(?:\d+(?:V\d+|V)|VCC|VDD|VSS|VBAT|VIN|VOUT|AVDD|DVDD|PVDD|VBUS|VUSB|VCORE|VDDA|VDDD|VCCA|VSSA|VSYS|VMAIN|VRTC|VIO|VREF|VTT|VPP|VEE|VNN|VPOS|VNEG|PWR|POWER)(?:$|[_-])/i.test(net)) return { net, category: 'power', warnings: [] };
 			const tag = net.match(/(?:^|_)Z(\d{2,3})D?(?:_|$)/i);
-			const suffixes = [['_DP', '_DM', '_D'], ['_P', '_N', ''], ['P', 'N', '']];
-			for (const [positive, negative, key] of suffixes) if (net.toUpperCase().endsWith(positive)) { const stem = net.slice(0, -positive.length), mate = stem + negative; if (set.has(mate)) return { net, category: 'differential', targetOhms: tag ? Number(tag[1]) : (/USB/i.test(net) ? 90 : 100), mate, polarity: 'positive', pairName: stem + key, warnings: [] }; }
-			for (const [positive, negative, key] of suffixes) if (net.toUpperCase().endsWith(negative)) { const stem = net.slice(0, -negative.length), mate = stem + positive; if (set.has(mate)) return { net, category: 'differential', targetOhms: tag ? Number(tag[1]) : (/USB/i.test(net) ? 90 : 100), mate, polarity: 'negative', pairName: stem + key, warnings: [] }; }
+			const suffixes = [['_DP', '_DM', '_D'], ['_P', '_N', ''], ['P', 'N', ''], ['+', '-', '']];
+			const targetFor = name => tag ? Number(tag[1]) : (/(?:PCIE|PCI_E|PEX)/i.test(name) ? 85 : /USB/i.test(name) ? 90 : 100);
+			for (const [positive, negative, key] of suffixes) if (net.toUpperCase().endsWith(positive)) { const stem = net.slice(0, -positive.length), mate = stem + negative; if (set.has(mate)) return { net, category: 'differential', targetOhms: targetFor(net), mate, polarity: 'positive', pairName: stem + key, warnings: [] }; }
+			for (const [positive, negative, key] of suffixes) if (net.toUpperCase().endsWith(negative)) { const stem = net.slice(0, -negative.length), mate = stem + positive; if (set.has(mate)) return { net, category: 'differential', targetOhms: targetFor(net), mate, polarity: 'negative', pairName: stem + key, warnings: [] }; }
 			if (tag) return { net, category: 'impedance', targetOhms: Number(tag[1]), warnings: [] };
-			return { net, category: 'signal', warnings: /(?:_P|_N|_DP|_DM)$/i.test(net) ? ['未找到差分伙伴'] : [] };
+			return { net, category: 'signal', warnings: /(?:_P|_N|_DP|_DM|\+|-)$/i.test(net) ? ['未找到差分伙伴'] : [] };
 		});
 	}
 	function customRules() {
@@ -151,15 +152,20 @@
 			const defaultMode = defaultLayer === 1 || defaultLayer === number('layers') ? (row.differential ? 'DiffEdgeCoupledCoatedMicrostrip1B' : 'CoatedMicrostrip1B') : (row.differential ? 'DiffOffsetStripline1B1A' : 'OffsetStripline1B1A');
 			const modeOptions = impedanceModes.map(item => `<option value="${item.value}"${item.value === defaultMode ? ' selected' : ''}>${item.label}</option>`).join('');
 			const refs = row.upperPreset || row.lowerPreset ? { upper: row.upperPreset || 0, lower: row.lowerPreset || 0 } : inferReferences(defaultLayer);
-			return `<tr data-group="${id}" data-differential="${row.differential ? 1 : 0}" data-nets="${row.nets.join('\u001f')}"><td><select id="mode_${id}">${modeOptions}</select></td><td><input type="number" id="target_${id}" value="${row.target}" step="1" min="${row.differential ? 50 : 20}" max="${max}"></td><td>${row.nets.length} 个网络</td><td><select id="layer_${id}">${layerOptions(defaultLayer)}</select></td><td><select id="upper_${id}">${layerOptions(refs.upper, true)}</select></td><td><select id="lower_${id}">${layerOptions(refs.lower, true)}</select></td><td><input type="number" id="width_${id}" value="${complement ? (row.differential ? 5.2 : 8) : ''}" step="0.1" min="2.5" max="80" ${complement ? 'required' : 'placeholder="自动反算" disabled'}></td><td><input type="number" id="gap_${id}" value="${preset?.gap ?? 5}" step="0.1" min="2.5" max="100"></td><td><input type="number" id="dist_${id}" value="${preset?.distance ?? 8}" step="0.1" min="2.5"></td></tr>`;
+			return `<tr data-group="${id}" data-differential="${row.differential ? 1 : 0}" data-nets="${row.nets.join('\u001f')}"><td><select id="mode_${id}">${modeOptions}</select></td><td><input type="number" id="target_${id}" value="${row.target}" step="1" min="${row.differential ? 50 : 20}" max="${max}"></td><td>${row.nets.length} 个网络</td><td><select id="layer_${id}">${layerOptions(defaultLayer)}</select></td><td><select id="upper_${id}">${layerOptions(refs.upper, true)}</select></td><td><select id="lower_${id}">${layerOptions(refs.lower, true)}</select></td><td><input type="number" id="width_${id}" value="${complement && row.differential ? 5.2 : ''}" step="0.1" min="2.5" max="80" ${complement && row.differential ? 'required' : 'placeholder="自动反算" disabled'}></td><td><input type="number" id="gap_${id}" value="${preset?.gap ?? 5}" step="0.1" min="2.5" max="100"></td><td><input type="number" id="dist_${id}" value="${preset?.distance ?? 8}" step="0.1" min="2.5"></td></tr>`;
 		}).join('') : '<tr><td colspan="9" class="empty">当前 PCB 未识别到差分或阻抗网络</td></tr>';
 		for (const row of rows) {
-			const id = groupId(row), mode = body.querySelector(`#mode_${id}`), target = body.querySelector(`#target_${id}`), gap = body.querySelector(`#gap_${id}`), dist = body.querySelector(`#dist_${id}`);
+			const id = groupId(row), mode = body.querySelector(`#mode_${id}`), target = body.querySelector(`#target_${id}`), gap = body.querySelector(`#gap_${id}`), dist = body.querySelector(`#dist_${id}`), width = body.querySelector(`#width_${id}`);
 			const updateModeFields = () => { const info = impedanceMode(mode.value), layerSel = $(`#layer_${id}`), upperSel = $(`#upper_${id}`), lowerSel = $(`#lower_${id}`), refMode = selectedReferenceMode(); gap.disabled = !info.differential; dist.disabled = !info.coplanar; gap.closest('td').classList.toggle('field-disabled', !info.differential); dist.closest('td').classList.toggle('field-disabled', !info.coplanar); target.min = info.differential ? '50' : '20'; target.max = info.differential ? '150' : '90'; if (info.layer === 'outer' && ![1, number('layers')].includes(number(`layer_${id}`))) layerSel.value = '1'; if (info.layer === 'inner' && [1, number('layers')].includes(number(`layer_${id}`))) layerSel.value = String(Math.min(2, number('layers') - 1)); if (refMode !== 'custom') { const syncRefs = inferReferences(Number(layerSel.value) || firstSignalLayer()); upperSel.value = syncRefs.upper || '0'; lowerSel.value = syncRefs.lower || '0'; } };
+			const complementAdjust = (field, counterpart, delta, factor = 1) => { if (!$('#widthGapComplement').checked || field.disabled || !counterpart || counterpart.disabled) return; const value = Math.max(2.5, Number(counterpart.value) - delta * factor); counterpart.value = String(Math.round(value * 100) / 100); };
+			const bindComplement = (field, updates) => { field.addEventListener('focus', () => { field.dataset.complementValue = field.value; }); field.addEventListener('input', () => { const previous = Number(field.dataset.complementValue ?? field.value), current = Number(field.value); if (!Number.isFinite(previous) || !Number.isFinite(current)) return; const delta = current - previous; for (const [counterpart, factor] of updates) complementAdjust(field, counterpart, delta, factor); field.dataset.complementValue = field.value; }); };
 			mode.addEventListener('change', updateModeFields); $(`#layer_${id}`).addEventListener('change', updateModeFields); updateModeFields();
+			bindComplement(width, [[gap, 1], [dist, 0.5]]);
+			bindComplement(gap, [[width, 1], [dist, 0.5]]);
+			bindComplement(dist, [[width, 2], [gap, 2]]);
 			if (gap) gap.addEventListener('change', () => { gap.value = String(Math.max(2.5, Number(gap.value) || 6)); });
 			if (dist) dist.addEventListener('change', () => { dist.value = String(Math.max(2.5, Number(dist.value) || 8)); });
-			}
+		}
 	}
 	function templateToStack(template) {
 		const copper = [], ds = [], ers = [], labels = []; let d = 0, erd = 0, names = [];
@@ -263,7 +269,29 @@
 		const constraintsRows = constraints();
 		const templates = state.stackups.filter(item => item.boardType === number('boardType') && item.layers === number('layers') && Math.abs(item.thickness - number('thickness')) < .001 && (item.layers === 2 || Math.abs(item.innerOz - number('innerOz')) < .001) && Math.abs(item.outerOz - number('outerOz')) < .001 && item.recommended === 1 && !invalidNames.test(item.name || ''));
 		const complement = $('#widthGapComplement')?.checked ?? true;
-		state.evaluations = templates.map(templateToStack).filter(Boolean).map((stack) => { const results = constraintsRows.map((row) => { const geometry = geometryFor(stack, row); if (complement && row.width && row.width >= 2.5) { const adjusted = solveW1(row, geometry); const calculated = evaluateJlcImpedance({ ...row, width: adjusted }, geometry); return { ...row, ...geometry, width: adjusted, originalWidth: row.width, calculated, errorPercent: (calculated - row.target) / row.target * 100, widthSource: '互补修正' }; } const width = row.width && row.width >= 2.5 ? row.width : solveW1(row, geometry); const calculated = evaluateJlcImpedance({ ...row, width }, geometry); return { ...row, ...geometry, width, calculated, errorPercent: (calculated - row.target) / row.target * 100, widthSource: row.width && row.width >= 2.5 ? '用户输入' : '反算' }; }); const score = results.reduce((sum, row) => sum + Math.abs(row.errorPercent), 0) + (stack.template.charge ? 3 : 0); return { stack, results, score }; }).sort((a, b) => a.score - b.score || a.stack.template.code.localeCompare(b.stack.template.code));
+		state.evaluations = templates.map(templateToStack).filter(Boolean).map((stack) => {
+			const results = constraintsRows.map((row) => {
+				const geometry = geometryFor(stack, row);
+				const solvedWidth = solveW1(row, geometry);
+				if (!complement || !row.differential || !(row.width >= 2.5)) {
+					const calculated = evaluateJlcImpedance({ ...row, width: solvedWidth }, geometry);
+					return { ...row, ...geometry, width: solvedWidth, calculated, errorPercent: (calculated - row.target) / row.target * 100, widthSource: '默认反算' };
+				}
+				// JLC treats entered W1/S1/D1 as the customer's baseline. Each stackup keeps
+				// its own solved W1, then complements S1/D1 by that stackup's W1 delta.
+				const widthDelta = solvedWidth - row.width;
+				const complemented = {
+					...row,
+					width: solvedWidth,
+					gap: Math.max(2.5, row.gap - widthDelta),
+					distance: row.coplanar ? Math.max(2.5, row.distance - widthDelta / 2) : row.distance,
+				};
+				const calculated = evaluateJlcImpedance(complemented, geometry);
+				return { ...complemented, ...geometry, calculated, errorPercent: (calculated - row.target) / row.target * 100, originalWidth: row.width, widthSource: '叠层互补' };
+			});
+			const score = results.reduce((sum, row) => sum + Math.abs(row.errorPercent), 0) + (stack.template.charge ? 3 : 0);
+			return { stack, results, score };
+		}).sort((a, b) => a.score - b.score || a.stack.template.code.localeCompare(b.stack.template.code));
 		const select = $('#stackTemplate'), previous = select.value; select.innerHTML = state.evaluations.length ? state.evaluations.map(item => `<option value="${item.stack.template.id}">${item.stack.template.code} · ${item.stack.template.name}</option>`).join('') : '<option value="">无精确匹配</option>'; if (state.evaluations.some(item => item.stack.template.id === previous)) select.value = previous;
 		select.disabled = $('#stackMode').value !== 'manual'; state.selected = $('#stackMode').value === 'manual' ? state.evaluations.find(item => item.stack.template.id === select.value) : state.evaluations[0]; renderStackups();
 	}
@@ -328,7 +356,19 @@
 				profileName: rule.profileName,
 				nets: rule.nets,
 			}));
-		state.plan = { rules: [...groups.values()], differentialPairs: pairs, powerClass: power ? { name: 'PWR_Class', color: { r: 153, g: 153, b: 153, alpha: 1 }, nets: power.nets } : null, impedanceClasses, warnings: state.classified.flatMap(item => item.warnings.map(warning => `${item.net}: ${warning}`)) };
+		const solveViaDiameter = (current, tempRise, copperUm) => {
+			const c = Math.pow(current / (0.02 * Math.pow(tempRise, 0.44)), 1 / 0.725);
+			return (c * 25.4 * 25.4) / (3140 * copperUm);
+		};
+		const viaProfiles = [];
+		if (power) {
+			const current = number('pwrCurrent') || 2;
+			const tempRise = Math.max(1, number('pwrTempRise') || 20);
+			const copperUm = Math.max(1, Number($('#pwrCopperOz')?.value) || 35);
+			const innerDiameter = Math.max(0.2, solveViaDiameter(current, tempRise, copperUm));
+			viaProfiles.push({ profileName: 'PWR', className: 'PWR_Class', ruleProfileName: 'PWR', nets: power.nets, outerDiameter: Math.max(innerDiameter + 0.3, innerDiameter * 1.75), innerDiameter });
+		}
+		state.plan = { rules: [...groups.values()], differentialPairs: pairs, powerClass: power ? { name: 'PWR_Class', color: { r: 153, g: 153, b: 153, alpha: 1 }, nets: power.nets } : null, impedanceClasses, viaProfiles, warnings: state.classified.flatMap(item => item.warnings.map(warning => `${item.net}: ${warning}`)) };
 		render();
 	}
 	async function scan() { if (!api) throw new Error('IFrame 未获得 EasyEDA API，请从扩展菜单打开'); status('正在读取 PCB', '读取网络与现有设计规则'); setProgress('正在读取 PCB', 10); const [configuration, netRules, pairs, netClasses, nets] = await Promise.all([api.pcb_Drc.getCurrentRuleConfiguration(), api.pcb_Drc.getNetRules(), api.pcb_Drc.getAllDifferentialPairs(), api.pcb_Drc.getAllNetClasses(), api.pcb_Net.getAllNetsName()]); setProgress('正在识别网络', 45); state.netClasses = netClasses; state.snapshot = { configuration, netRules, differentialPairs: pairs, netClasses, nets, timestamp: new Date().toISOString() }; state.classified = classify(nets); state.aiInputs = []; if ($('#aiEnabled').checked) { setProgress('AI 正在识别网络', 60); try { const ai = await aiClassify(nets, { layers: number('layers'), thickness: number('thickness') }); state.classified = state.classified.map(item => { const aiItem = ai.map[item.net]; if (!aiItem) return item; return { ...item, ...aiItem, net: item.net, pairName: item.pairName || (aiItem.category === 'differential' ? `${item.net.slice(0, -2)}_D` : undefined), warnings: [] }; }); state.aiInputs = ai.inputs; toast('AI 识别完成'); } catch (error) { toast(`AI 识别失败，使用内置规则：${error.message}`, true); } } state.plan = null; state.selected = null; state.evaluations = []; render(); renderImpedanceInputs(); $('#planMeta').textContent = '计算后选择方案'; $('#planCards').innerHTML = '<p class="empty small">填写阻抗输入后点击“计算设计规则”</p>'; $('#calculateBtn').disabled = false; $('#previewBtn').disabled = true; $('#applyBtn').disabled = true; status('扫描完成', `${nets.length} 个网络 · 请填写阻抗输入后计算`); setProgress('扫描完成', 100); }
@@ -378,6 +418,20 @@
 	function autoImpedanceLayer() { const mode = selectedReferenceMode(), roles = selectedLayerRoles(); const candidates = []; for (let layer = 1; layer <= number('layers'); layer++) { if (roles[layer] !== 'signal') continue; const refs = inferReferences(layer); const upperRole = roles[refs.upper], lowerRole = roles[refs.lower]; const refCount = Number(!!refs.upper) + Number(!!refs.lower); if (!refCount) continue; const groundHits = Number(upperRole === 'ground') + Number(lowerRole === 'ground'); const nonSignalHits = Number(upperRole && upperRole !== 'signal') + Number(lowerRole && lowerRole !== 'signal'); const distanceScore = (refs.upper ? Math.abs(layer - refs.upper) : 0) + (refs.lower ? Math.abs(refs.lower - layer) : 0); const score = mode === 'ground' ? groundHits * 100 + nonSignalHits * 10 + refCount * 3 - distanceScore : refCount * 100 - distanceScore; candidates.push({ layer, refs, score }); } return (candidates.sort((a, b) => b.score - a.score || a.layer - b.layer)[0] || { layer: firstSignalLayer(), refs: inferReferences(firstSignalLayer()) }).layer; }
 	function layerData(value, unit = 'mil', layer = 1, role = 'signal') { const converted = unit === 'mm' ? value * 0.0254 : value, max = unit === 'mm' ? 2.54 : 100, data = {}; for (let seq = 1; seq <= Math.max(2, number('layers')); seq++) { const layerId = pcbLayerIdForSeq(seq); data[layerId] = { minValue: converted, defaultValue: converted, maxValue: max, layerRole: role }; } return data; }
 	function spacingProfile(name, clearance, template) { const copy = structuredClone(template), row = copy.row.indexOf('Track'), column = copy.column.indexOf('Track'); copy.editName = name; copy.isSetDefault = false; if (row < 0 || column < 0) throw new Error('安全间距模板缺少 Track 行列'); for (const table of Object.values(copy.tables || {})) table.content[row][column] = clearance; return copy; }
+	function viaSizeProfile(name, outer, inner, template) {
+		const copy = structuredClone(template || {});
+		copy.editName = name;
+		copy.unit = 'mm';
+		copy.isSetDefault = false;
+		copy.form = copy.form || {};
+		copy.form.viaOuterdiameterDefault = outer;
+		copy.form.viaInnerdiameterDefault = inner;
+		copy.form.viaOuterdiameterMin = Number.isFinite(copy.form.viaOuterdiameterMin) ? Math.min(copy.form.viaOuterdiameterMin, outer) : outer;
+		copy.form.viaOuterdiameterMax = Number.isFinite(copy.form.viaOuterdiameterMax) ? Math.max(copy.form.viaOuterdiameterMax, outer) : outer;
+		copy.form.viaInnerdiameterMin = Number.isFinite(copy.form.viaInnerdiameterMin) ? Math.min(copy.form.viaInnerdiameterMin, inner) : inner;
+		copy.form.viaInnerdiameterMax = Number.isFinite(copy.form.viaInnerdiameterMax) ? Math.max(copy.form.viaInnerdiameterMax, inner) : inner;
+		return copy;
+	}
 	async function apply() {
 		if (!state.snapshot || !state.plan) return;
 		$('#applyBtn').disabled = true;
@@ -392,6 +446,8 @@
 		const spacing = cfg.config.Spacing['Safe Spacing'];
 		const tracks = cfg.config.Physics.Track;
 		const diffs = cfg.config.Physics['Differential Pair'];
+		const viaSizes = cfg.config.Physics['Via Size'];
+		if (!viaSizes) throw new Error('规则配置缺少 Via Size，拒绝写入');
 		const nativeTrackKeys = Object.keys(tracks).filter(key => key.startsWith('copperThickness'));
 		for (const key of Object.keys(tracks)) if (!nativeTrackKeys.includes(key)) delete tracks[key];
 		const nativeDiffKeys = Object.keys(diffs).filter(key => key === 'differentialPair');
@@ -400,6 +456,9 @@
 		const trackTemplate = Object.values(tracks).find(item => item.isSetDefault) || Object.values(tracks)[0];
 		const diffTemplate = diffs.differentialPair || Object.values(diffs).find(item => item.isSetDefault) || Object.values(diffs)[0];
 		const safeSpacingTemplate = spacing.copperThickness1oz || Object.values(spacing)[0];
+		const viaTemplate = Object.values(viaSizes).find(item => item.isSetDefault) || Object.values(viaSizes)[0];
+		const powerVia = state.plan.viaProfiles?.find(item => item.className === 'PWR_Class');
+		if (powerVia) viaSizes.PWR = viaSizeProfile('PWR', powerVia.outerDiameter, powerVia.innerDiameter, viaTemplate);
 		for (const rule of state.plan.rules) {
 			adrLog('profile', { name: rule.profileName, category: rule.category, widthMil: rule.widthMil, gapMil: rule.gapMil, layerWidths: rule.layerWidths, impedanceLayer: rule.impedanceLayer });
 			if (rule.category === 'differential') {
@@ -471,6 +530,7 @@
 			if (activated === false) throw new Error('设计规则配置激活失败');
 			const activeConfiguration = await api.pcb_Drc.getCurrentRuleConfiguration();
 			if (!activeConfiguration?.config?.Physics?.Track?.PWR) throw new Error('PWR 导线规则未激活');
+			if (powerVia && !activeConfiguration?.config?.Physics?.['Via Size']?.PWR) throw new Error('PWR 过孔尺寸规则未激活');
 			status('配置已保存', `已保存为 ${configurationName} 并已激活，继续写入网络类和网络规则`); setProgress('正在写入网络规则', 55);
 			toast(`规则配置已保存：${configurationName}`);
 			// Differential-pair net rules reference pair objects, so create the pairs first.
@@ -573,27 +633,50 @@
 				}
 			}
 			// Create impedance net classes dynamically from the generated plan and bind
-			// Safe Spacing on each class row, exactly like PWR_Class binds its Track profile.
+			// Safe Spacing / Via Size on each class row, exactly like PWR_Class binds its Track profile.
 			const normalizeClassName = name => String(name || '').replace(/[ _-]/g, '').toLowerCase();
-			for (const impedanceClass of state.plan.impedanceClasses || []) {
-				await applyPowerClass({ ...impedanceClass, name: impedanceClass.name });
+			for (const impedanceClass of (state.plan.viaProfiles || []).filter(item => item.className !== 'PWR_Class')) {
+				const classes = await api.pcb_Drc.getAllNetClasses();
+				const existing = classes.find(item => normalizeClassName(item.name) === normalizeClassName(impedanceClass.className));
+				if (!existing && !await api.pcb_Drc.createNetClass(impedanceClass.className, impedanceClass.nets, { r: 64, g: 158, b: 255, alpha: 1 })) throw new Error(`网络类 ${impedanceClass.className} 创建失败`);
 				let bound = false;
 				for (let attempt = 0; attempt < 5 && !bound; attempt++) {
 					if (attempt) await new Promise(resolve => setTimeout(resolve, 200));
 					const classRules = await api.pcb_Drc.getNetRules();
-					const classRule = classRules.find(row => row.type === 'netClass' && normalizeClassName(row.name) === normalizeClassName(impedanceClass.name));
-					if (!classRule) continue; // class row may materialize asynchronously
-					classRule['Safe Spacing'] = impedanceClass.profileName;
-					for (const sub of classRule.sub || []) if (impedanceClass.nets.includes(sub.name)) sub['Safe Spacing'] = impedanceClass.profileName;
-					if (await api.pcb_Drc.overwriteNetRules(classRules) === false) throw new Error(`网络类 ${impedanceClass.name} 规则写入失败`);
+					const classRule = classRules.find(row => row.type === 'netClass' && normalizeClassName(row.name) === normalizeClassName(impedanceClass.className));
+					if (!classRule) continue;
+					classRule['Safe Spacing'] = impedanceClass.ruleProfileName;
+					classRule['Via Size'] = impedanceClass.profileName;
+					for (const sub of classRule.sub || []) if (impedanceClass.nets.includes(sub.name)) { sub['Safe Spacing'] = impedanceClass.ruleProfileName; sub['Via Size'] = impedanceClass.profileName; }
+					if (await api.pcb_Drc.overwriteNetRules(classRules) === false) throw new Error(`网络类 ${impedanceClass.className} 规则写入失败`);
 					const verified = await api.pcb_Drc.getNetRules();
-					const verifiedClass = verified.find(row => row.type === 'netClass' && normalizeClassName(row.name) === normalizeClassName(impedanceClass.name));
-					bound = verifiedClass?.['Safe Spacing'] === impedanceClass.profileName
-						&& (verifiedClass.sub || []).filter(sub => impedanceClass.nets.includes(sub.name)).every(sub => sub['Safe Spacing'] === impedanceClass.profileName);
+					const verifiedClass = verified.find(row => row.type === 'netClass' && normalizeClassName(row.name) === normalizeClassName(impedanceClass.className));
+					bound = verifiedClass?.['Safe Spacing'] === impedanceClass.ruleProfileName
+						&& verifiedClass?.['Via Size'] === impedanceClass.profileName
+						&& (verifiedClass.sub || []).filter(sub => impedanceClass.nets.includes(sub.name)).every(sub => sub['Safe Spacing'] === impedanceClass.ruleProfileName && sub['Via Size'] === impedanceClass.profileName);
 				}
-				if (!bound) throw new Error(`网络类 ${impedanceClass.name} 的 Safe Spacing 规则回读失败`);
-				adrLog('impedanceClass.bound', { name: impedanceClass.name, profile: impedanceClass.profileName, nets: impedanceClass.nets });
+				if (!bound) throw new Error(`网络类 ${impedanceClass.className} 的 Safe Spacing / Via Size 规则回读失败`);
+				adrLog('impedanceClass.bound', { name: impedanceClass.className, profile: impedanceClass.profileName, nets: impedanceClass.nets });
 			}
+			if (state.plan.powerClass) {
+				const classes = await api.pcb_Drc.getAllNetClasses();
+				const existing = classes.find(item => normalizeClassName(item.name) === normalizeClassName(state.plan.powerClass.name));
+				if (!existing && !await api.pcb_Drc.createNetClass(state.plan.powerClass.name, state.plan.powerClass.nets, state.plan.powerClass.color)) throw new Error(`网络类 ${state.plan.powerClass.name} 创建失败`);
+				for (let attempt = 0; attempt < 5; attempt++) {
+					if (attempt) await new Promise(resolve => setTimeout(resolve, 200));
+					const classRules = await api.pcb_Drc.getNetRules();
+					const classRule = classRules.find(row => row.type === 'netClass' && normalizeClassName(row.name) === normalizeClassName(state.plan.powerClass.name));
+					if (!classRule) continue;
+					classRule.Track = 'PWR';
+					classRule['Via Size'] = 'PWR';
+					for (const sub of classRule.sub || []) if (state.plan.powerClass.nets.includes(sub.name)) { sub.Track = 'PWR'; sub['Via Size'] = 'PWR'; }
+					if (await api.pcb_Drc.overwriteNetRules(classRules) === false) throw new Error('网络类规则写入失败');
+					const verified = await api.pcb_Drc.getNetRules();
+					const verifiedClass = verified.find(row => row.type === 'netClass' && normalizeClassName(row.name) === normalizeClassName(state.plan.powerClass.name));
+					if (verifiedClass?.Track === 'PWR' && verifiedClass?.['Via Size'] === 'PWR' && (verifiedClass.sub || []).filter(sub => state.plan.powerClass.nets.includes(sub.name)).every(sub => sub.Track === 'PWR' && sub['Via Size'] === 'PWR')) break;
+				}
+			}
+			const expectedNames = [...new Set(state.plan.rules.flatMap(item => item.nets).filter(net => !state.plan.powerClass?.nets.includes(net) && !state.plan.impedanceClasses?.some(cls => cls.nets.includes(net)) && !state.plan.viaProfiles?.some(cls => cls.nets.includes(net))))];
 			// Create the class after ordinary rules, then assign its materialized rule to PWR.
 			if (state.plan.powerClass) {
 				await applyPowerClass(state.plan.powerClass);
@@ -612,7 +695,6 @@
 					if (verifiedClass?.Track === 'PWR' && (verifiedClass.sub || []).filter(sub => state.plan.powerClass.nets.includes(sub.name)).every(sub => sub.Track === 'PWR')) break;
 				}
 			}
-			const expectedNames = [...new Set(state.plan.rules.flatMap(item => item.nets).filter(net => !state.plan.powerClass?.nets.includes(net) && !state.plan.impedanceClasses?.some(cls => cls.nets.includes(net))))];
 			let readback = [];
 			let missingNames = expectedNames;
 			for (let attempt = 0; attempt < 5 && missingNames.length; attempt++) {
@@ -638,7 +720,7 @@
 				if (!verifyClass) throw new Error(`网络类 ${state.plan.powerClass.name} 未生成`);
 				const missingClassNets = state.plan.powerClass.nets.filter(net => !(verifyClass.nets || []).includes(net));
 				if (missingClassNets.length) throw new Error(`网络类 ${state.plan.powerClass.name} 缺少网络：${missingClassNets.join(', ')}`);
-				if (finalClass?.Track !== 'PWR' || !(finalClass.sub || []).filter(sub => state.plan.powerClass.nets.includes(sub.name)).every(sub => sub.Track === 'PWR')) throw new Error(`网络类 ${state.plan.powerClass.name} 的 PWR 规则回读失败`);
+				if (finalClass?.Track !== 'PWR' || finalClass?.['Via Size'] !== 'PWR' || !(finalClass.sub || []).filter(sub => state.plan.powerClass.nets.includes(sub.name)).every(sub => sub.Track === 'PWR' && sub['Via Size'] === 'PWR')) throw new Error(`网络类 ${state.plan.powerClass.name} 的 PWR 导线/过孔规则回读失败`);
 			}
 			// Final verification for every dynamically generated impedance class.
 			if (state.plan.impedanceClasses?.length) {
@@ -784,22 +866,52 @@
 	async function saveAiConfig() { if (!api?.sys_Storage?.setExtensionUserConfig) return; let apiKey = $('#aiApiKey').value; if (!apiKey && $('#aiApiKey').dataset.loaded === '1') { try { apiKey = JSON.parse(await api.sys_Storage.getExtensionUserConfig('adr:ai-config') || '{}').apiKey || ''; } catch { apiKey = ''; } $('#aiApiKey').value = apiKey; } await api.sys_Storage.setExtensionUserConfig('adr:ai-config', JSON.stringify({ enabled: $('#aiEnabled').checked, baseUrl: $('#aiBaseUrl').value.replace(/\/+$/, ''), model: $('#aiModel').value, temperature: Number($('#aiTemperature').value) || 0.2, apiKey })); }
 	function refresh() { evaluateStackups(); makePlan(); $('#previewBtn').disabled = !state.plan; $('#applyBtn').disabled = !state.plan; }
 	function calcPowerWidth() {
-		const I = number('pwrCurrent'), len = number('pwrLength'), copperUm = Number($('#pwrCopperOz').value);
+		const I = number('pwrCurrent'), lenMm = number('pwrLength'), copperUm = Number($('#pwrCopperOz').value);
 		const isExt = $('#pwrLayerType').value === 'external', dT = number('pwrTempRise'), ambient = number('pwrAmbient');
-		if (!(I > 0 && dT > 0 && copperUm > 0 && len > 0)) { $('#pwrResult').innerHTML = '<p class="hint">请填写完整参数</p>'; return; }
-		// JLC exact formula from https://www.jlc-fpc.com/trace-current-calculator
+		if (!(I > 0 && dT > 0 && copperUm > 0 && lenMm > 0)) { $('#pwrResult').innerHTML = '<p class="hint">请填写完整参数</p>'; return; }
+		// JLC trace-current formula (https://www.jlc-fpc.com/trace-current-calculator)
 		const k = isExt ? 0.048 : 0.024;
 		const f = Math.pow(I / (k * Math.pow(dT, 0.44)), 1 / 0.725);
 		const areaCm2 = f * 2.54 * 2.54 / 1e6;
 		const m = 1e-4 * copperUm;
+		const v = (lenMm / 1000) / 0.01; // mm→m→cm (JLC uses meters)
 		const widthMm = areaCm2 / m / 0.1;
 		const widthMil = widthMm / 0.0254;
+		// JLC via-current inverse formula (https://www.jlc-fpc.com/via-current-calculator)
+		const viaCrossSection = Math.pow(I / (0.02 * Math.pow(dT, 0.44)), 1 / 0.725);
+		const viaHoleMm = Math.max(0.2, (viaCrossSection * 25.4 * 25.4) / (3140 * copperUm));
+		const viaPadMm = Math.max(viaHoleMm + 0.3, viaHoleMm * 1.75);
+		const viaHoleMil = viaHoleMm / 0.0254;
+		const viaPadMil = viaPadMm / 0.0254;
 		const opTemp = ambient + dT;
-		const v = len / 0.01;
-		const resistance = 17e-7 * v / f * (1 + 0.0039 * (opTemp - 25));
+		const resistance = 17e-7 * v / areaCm2 * (1 + 0.0039 * (opTemp - 25));
 		const vDrop = resistance * I, power = resistance * I * I;
-		$('#pwrResult').innerHTML = `<div class="pwr-result-grid"><div><strong>${widthMil.toFixed(1)}</strong><span>线宽 / mil</span></div><div><strong>${widthMm.toFixed(3)}</strong><span>线宽 / mm</span></div><div><strong>${(resistance * 1000).toFixed(1)}</strong><span>电阻 / mΩ</span></div><div><strong>${(vDrop * 1000).toFixed(1)}</strong><span>压降 / mV</span></div><div><strong>${(power * 1000).toFixed(1)}</strong><span>功耗 / mW</span></div><div><strong>${opTemp.toFixed(0)}</strong><span>工作温度 / °C</span></div></div><p class="hint" style="margin-top:6px">基于 IPC-2222 标准，${isExt ? '外层（空气中）' : '内层'}走线，${copperUm}μm 铜。公式与嘉立创在线计算器一致。</p>`;
+		$('#pwrResult').innerHTML = `<div class="pwr-result-grid"><div><strong>${widthMil.toFixed(1)}</strong><span>线宽 / mil</span></div><div><strong>${widthMm.toFixed(3)}</strong><span>线宽 / mm</span></div><div><strong>${viaPadMil.toFixed(1)}</strong><span>过孔焊盘 / mil</span></div><div><strong>${viaHoleMil.toFixed(1)}</strong><span>过孔钻孔 / mil</span></div><div><strong>${(resistance * 1000).toFixed(1)}</strong><span>电阻 / mΩ</span></div><div><strong>${(vDrop * 1000).toFixed(1)}</strong><span>压降 / mV</span></div><div><strong>${(power * 1000).toFixed(1)}</strong><span>功耗 / mW</span></div><div><strong>${opTemp.toFixed(0)}</strong><span>工作温度 / °C</span></div></div>`;
 	}
+	function closeImpedanceModal() { $('#impedanceModal').hidden = true; }
+	function openImpedanceModal() {
+		if (!state.snapshot) { toast('请先扫描当前 PCB', true); return; }
+		const type = $('#manualDifferential'), target = $('#manualTarget'), nets = $('#manualNets');
+		type.value = '0'; target.value = '50'; target.min = '20'; target.max = '90'; nets.value = '';
+		$('#manualNetsHint').textContent = `当前可用网络：${state.classified.filter(item => item.category === 'signal').map(item => item.net).join(', ') || '无'}`;
+		$('#impedanceModal').hidden = false; target.focus();
+	}
+	function saveManualImpedance() {
+		const differential = $('#manualDifferential').value === '1', target = Number($('#manualTarget').value);
+		const min = differential ? 50 : 20, max = differential ? 150 : 90;
+		if (!Number.isFinite(target) || target < min || target > max) { toast(`目标阻抗必须在 ${min}~${max} Ω 范围内`, true); return; }
+		const nets = [...new Set($('#manualNets').value.split(/[,，\s]+/).map(item => item.trim()).filter(Boolean))];
+		const unknown = nets.filter(net => !state.classified.some(item => item.net === net));
+		if (!nets.length || unknown.length) { toast(unknown.length ? `不存在的网络：${unknown.join(', ')}` : '至少填写一个网络', true); return; }
+		for (const net of nets) { const item = state.classified.find(row => row.net === net); item.category = differential ? 'differential' : 'impedance'; item.targetOhms = target; item.warnings = []; }
+		closeImpedanceModal(); render(); renderImpedanceInputs(); toast(`已新增 ${target} Ω ${differential ? '差分' : '单端'}规则`);
+	}
+	$('#addImpedanceBtn').addEventListener('click', openImpedanceModal);
+	$('#closeImpedanceBtn').addEventListener('click', closeImpedanceModal);
+	$('#cancelImpedanceBtn').addEventListener('click', closeImpedanceModal);
+	$('#saveImpedanceBtn').addEventListener('click', saveManualImpedance);
+	$('#manualDifferential').addEventListener('change', () => { const differential = $('#manualDifferential').value === '1', target = $('#manualTarget'); target.value = differential ? '100' : '50'; target.min = differential ? '50' : '20'; target.max = differential ? '150' : '90'; });
+	$('#impedanceModal').addEventListener('click', event => { if (event.target === $('#impedanceModal')) closeImpedanceModal(); });
 	$('#scanBtn').addEventListener('click', () => scan().catch(error => { status('扫描失败', error.message); toast(error.message, true); }));
 	$('#calculateBtn').addEventListener('click', () => { try { if (!state.snapshot) throw new Error('请先扫描当前 PCB'); setProgress('正在计算叠层', 30); calcPowerWidth(); evaluateStackups(); makePlan(); $('#previewBtn').disabled = !state.plan; $('#applyBtn').disabled = !state.plan; status('计算完成', `${state.evaluations.length} 个候选方案 · 请选择后应用`); setProgress('计算完成', 100); toast('电源线宽与设计规则已计算'); } catch (error) { status('计算失败', error.message); toast(error.message, true); } });
 	$('#previewBtn').addEventListener('click', () => { try { refresh(); } catch (error) { toast(error.message, true); } }); $('#applyBtn').addEventListener('click', () => apply().catch(error => { status('应用失败', error.message); toast(error.message, true); })); $('#restoreBtn').addEventListener('click', () => restore().catch(error => toast(error.message, true)));
@@ -808,6 +920,8 @@
 	$('#aiTestBtn').addEventListener('click', async () => { try { setProgress('正在测试 AI 连接', 30); const cfg = aiConfig(); if (!cfg.baseUrl || !cfg.apiKey || !cfg.model) throw new Error('请先完整填写 AI Base URL / API Key / 模型'); const response = await fetch(`${cfg.baseUrl}/chat/completions`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cfg.apiKey}` }, body: JSON.stringify({ model: cfg.model, max_tokens: 5, messages: [{ role: 'user', content: 'ping' }] }) }); if (!response.ok) throw new Error(`HTTP ${response.status}`); setProgress('连接测试成功', 100); toast('AI 连接测试成功'); } catch (error) { setProgress('连接测试失败', 100); toast(`AI 连接失败：${error.message}`, true); } });
 	loadAiConfig();
 	calcPowerWidth();
+	for (const id of ['pwrCurrent', 'pwrLength', 'pwrCopperOz', 'pwrLayerType', 'pwrAmbient', 'pwrTempRise']) $(`#${id}`).addEventListener('input', calcPowerWidth);
+	for (const id of ['pwrCopperOz', 'pwrLayerType']) $(`#${id}`).addEventListener('change', calcPowerWidth);
 	$('#layers').addEventListener('change', () => { updateThicknessOptions(); renderStackPreview(); if (state.classified.length) renderImpedanceInputs(); if (state.evaluations.length) refresh(); });
 	$('#widthGapComplement').addEventListener('change', () => { if (state.classified.length) renderImpedanceInputs(); });
 	$('#referenceMode').addEventListener('change', () => { if (state.classified.length) renderImpedanceInputs(); });

@@ -1,5 +1,5 @@
 {
-  "enabled": false,
+  "enabled": true,
   "pr_check": {
     "enabled": true,
     "trigger": "manual",

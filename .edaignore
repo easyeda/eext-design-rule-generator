@@ -1,4 +1,5 @@
 /.git/
+/.github/
 /.husky/
 /.vscode/
 /build/
@@ -7,6 +8,9 @@
 /node_modules/
 /src/
 /docs/
+/tmp-jlc/
+/tmp-jlc-trace.py
+/.hermes/
 /.api-probe.json
 /.pwr-probe.json
 /.rule-structure-after.json
@@ -21,3 +25,10 @@
 /tsconfig.json
 .eslintcache
 debug.log
+/fixtures/
+/fixtures/calibration/
+/fixtures/calibration/availability-pages/
+/fixtures/calibration/template-pages/
+/scripts/
+/.venv-calibration/
+/requirements-calibration.txt

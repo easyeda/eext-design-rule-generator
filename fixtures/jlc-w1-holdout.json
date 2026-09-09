@@ -1,0 +1,337 @@
+{
+  "source": "Official JLC calc API forward binary search (held-out)",
+  "capturedAt": "2026-08-31T11:57:46.243Z",
+  "count": 24,
+  "records": [
+    {
+      "mode": "CoatedCoplanarWaveguideWithLowerGnd1B",
+      "geometry": {
+        "H1": 19.1563,
+        "Er1": 4.2481,
+        "T1": 1.6327,
+        "D1": 11.2521
+      },
+      "target": 50,
+      "localW1": 26.57,
+      "officialW1": 26.62,
+      "err": 0.05
+    },
+    {
+      "mode": "CoatedCoplanarWaveguideWithLowerGnd1B",
+      "geometry": {
+        "H1": 13.6563,
+        "Er1": 4.4481,
+        "T1": 1.8327,
+        "D1": 12.5152
+      },
+      "target": 50,
+      "localW1": 19.98,
+      "officialW1": 19.97,
+      "err": 0.01
+    },
+    {
+      "mode": "OffsetStripline1B1A",
+      "geometry": {
+        "H1": 19.1563,
+        "Er1": 4.2481,
+        "T1": 1.6327,
+        "H2": 15.9091,
+        "Er2": 4.3296
+      },
+      "target": 50,
+      "localW1": 13.2,
+      "officialW1": 13.18,
+      "err": 0.02
+    },
+    {
+      "mode": "OffsetStripline1B1A",
+      "geometry": {
+        "H1": 13.6563,
+        "Er1": 4.4481,
+        "T1": 1.8327,
+        "H2": 17.9091,
+        "Er2": 4.3757
+      },
+      "target": 50,
+      "localW1": 11.19,
+      "officialW1": 11.2,
+      "err": 0.01
+    },
+    {
+      "mode": "OffsetCoplanarWaveguide1B1A",
+      "geometry": {
+        "H1": 19.1563,
+        "Er1": 4.2481,
+        "T1": 1.6327,
+        "H2": 15.9091,
+        "Er2": 4.3296,
+        "D1": 11.2521
+      },
+      "target": 50,
+      "localW1": 11.29,
+      "officialW1": 11.29,
+      "err": 0
+    },
+    {
+      "mode": "OffsetCoplanarWaveguide1B1A",
+      "geometry": {
+        "H1": 13.6563,
+        "Er1": 4.4481,
+        "T1": 1.8327,
+        "H2": 17.9091,
+        "Er2": 4.3757,
+        "D1": 12.5152
+      },
+      "target": 50,
+      "localW1": 10.1,
+      "officialW1": 10.09,
+      "err": 0.01
+    },
+    {
+      "mode": "SurfaceCoplanarWaveguideWithLowerGnd1B",
+      "geometry": {
+        "H1": 19.1563,
+        "Er1": 4.2481,
+        "T1": 1.6327,
+        "D1": 11.2521
+      },
+      "target": 50,
+      "localW1": 28.5,
+      "officialW1": 28.55,
+      "err": 0.05
+    },
+    {
+      "mode": "SurfaceCoplanarWaveguideWithLowerGnd1B",
+      "geometry": {
+        "H1": 13.6563,
+        "Er1": 4.4481,
+        "T1": 1.8327,
+        "D1": 12.5152
+      },
+      "target": 50,
+      "localW1": 21.34,
+      "officialW1": 21.33,
+      "err": 0.01
+    },
+    {
+      "mode": "DiffCoatedCoplanarWaveguideWithLowerGnd1B",
+      "geometry": {
+        "H1": 19.1563,
+        "Er1": 4.2481,
+        "T1": 1.6327,
+        "S1": 11.1834,
+        "D1": 11.2521
+      },
+      "target": 50,
+      "localW1": 73.12,
+      "officialW1": 73.14,
+      "err": 0.02
+    },
+    {
+      "mode": "DiffCoatedCoplanarWaveguideWithLowerGnd1B",
+      "geometry": {
+        "H1": 13.6563,
+        "Er1": 4.4481,
+        "T1": 1.8327,
+        "S1": 11.8893,
+        "D1": 12.5152
+      },
+      "target": 50,
+      "localW1": 54.64,
+      "officialW1": 54.58,
+      "err": 0.06
+    },
+    {
+      "mode": "DiffOffsetCoplanarWaveguide1B1A",
+      "geometry": {
+        "H1": 19.1563,
+        "Er1": 4.2481,
+        "T1": 1.6327,
+        "H2": 15.9091,
+        "Er2": 4.3296,
+        "S1": 11.1834,
+        "D1": 11.2521
+      },
+      "target": 50,
+      "localW1": 35.72,
+      "officialW1": 35.72,
+      "err": 0
+    },
+    {
+      "mode": "DiffOffsetCoplanarWaveguide1B1A",
+      "geometry": {
+        "H1": 13.6563,
+        "Er1": 4.4481,
+        "T1": 1.8327,
+        "H2": 17.9091,
+        "Er2": 4.3757,
+        "S1": 11.8893,
+        "D1": 12.5152
+      },
+      "target": 50,
+      "localW1": 32.45,
+      "officialW1": 32.39,
+      "err": 0.06
+    },
+    {
+      "mode": "SurfaceMicrostrip1B",
+      "geometry": {
+        "H1": 19.1563,
+        "Er1": 4.2481,
+        "T1": 1.6327
+      },
+      "target": 50,
+      "localW1": 36.06,
+      "officialW1": 36.06,
+      "err": 0
+    },
+    {
+      "mode": "SurfaceMicrostrip1B",
+      "geometry": {
+        "H1": 13.6563,
+        "Er1": 4.4481,
+        "T1": 1.8327
+      },
+      "target": 50,
+      "localW1": 24.35,
+      "officialW1": 24.35,
+      "err": 0
+    },
+    {
+      "mode": "DiffOffsetStripline1B1A",
+      "geometry": {
+        "H1": 19.1563,
+        "Er1": 4.2481,
+        "T1": 1.6327,
+        "H2": 15.9091,
+        "Er2": 4.3296,
+        "S1": 11.1834
+      },
+      "target": 50,
+      "localW1": 36.76,
+      "officialW1": 36.74,
+      "err": 0.02
+    },
+    {
+      "mode": "DiffOffsetStripline1B1A",
+      "geometry": {
+        "H1": 13.6563,
+        "Er1": 4.4481,
+        "T1": 1.8327,
+        "H2": 17.9091,
+        "Er2": 4.3757,
+        "S1": 11.8893
+      },
+      "target": 50,
+      "localW1": 33.08,
+      "officialW1": 32.99,
+      "err": 0.09
+    },
+    {
+      "mode": "CoatedMicrostrip1B",
+      "geometry": {
+        "H1": 19.1563,
+        "Er1": 4.2481,
+        "T1": 1.6327
+      },
+      "target": 50,
+      "localW1": 34.91,
+      "officialW1": 34.9,
+      "err": 0.01
+    },
+    {
+      "mode": "CoatedMicrostrip1B",
+      "geometry": {
+        "H1": 13.6563,
+        "Er1": 4.4481,
+        "T1": 1.8327
+      },
+      "target": 50,
+      "localW1": 23.3,
+      "officialW1": 23.3,
+      "err": 0
+    },
+    {
+      "mode": "DiffEdgeCoupledCoatedMicrostrip1B",
+      "geometry": {
+        "H1": 19.1563,
+        "Er1": 4.2481,
+        "T1": 1.6327,
+        "S1": 11.1834
+      },
+      "target": 50,
+      "localW1": 77.53,
+      "officialW1": 77.49,
+      "err": 0.04
+    },
+    {
+      "mode": "DiffEdgeCoupledCoatedMicrostrip1B",
+      "geometry": {
+        "H1": 13.6563,
+        "Er1": 4.4481,
+        "T1": 1.8327,
+        "S1": 11.8893
+      },
+      "target": 50,
+      "localW1": 56.37,
+      "officialW1": 56.35,
+      "err": 0.02
+    },
+    {
+      "mode": "DiffEdgeCoupledSurfaceMicrostrip1B",
+      "geometry": {
+        "H1": 19.1563,
+        "Er1": 4.2481,
+        "T1": 1.6327,
+        "S1": 11.1834,
+        "D1": 11.2521
+      },
+      "target": 50,
+      "localW1": 80.14,
+      "officialW1": 80.04,
+      "err": 0.1
+    },
+    {
+      "mode": "DiffEdgeCoupledSurfaceMicrostrip1B",
+      "geometry": {
+        "H1": 13.6563,
+        "Er1": 4.4481,
+        "T1": 1.8327,
+        "S1": 11.8893,
+        "D1": 12.5152
+      },
+      "target": 50,
+      "localW1": 58.29,
+      "officialW1": 58.17,
+      "err": 0.12
+    },
+    {
+      "mode": "DiffSurfaceCoplanarWaveguideWithLowerGnd1B",
+      "geometry": {
+        "H1": 19.1563,
+        "Er1": 4.2481,
+        "T1": 1.6327,
+        "S1": 11.1834,
+        "D1": 11.2521
+      },
+      "target": 50,
+      "localW1": 76.02,
+      "officialW1": 76.06,
+      "err": 0.04
+    },
+    {
+      "mode": "DiffSurfaceCoplanarWaveguideWithLowerGnd1B",
+      "geometry": {
+        "H1": 13.6563,
+        "Er1": 4.4481,
+        "T1": 1.8327,
+        "S1": 11.8893,
+        "D1": 12.5152
+      },
+      "target": 50,
+      "localW1": 56.59,
+      "officialW1": 56.55,
+      "err": 0.04
+    }
+  ]
+}

@@ -16,3 +16,19 @@ debug.log
 /.hermes/
 tmp-jlc-trace.py
 tmp-jlc/
+/.venv-calibration/
+/fixtures/calibration/.oracle.lock
+/fixtures/calibration/availability-pages/
+/fixtures/calibration/template-pages/
+/fixtures/calibration/validation-progress.log
+/build/dist/verification.json
+
+# Calibration data is not needed by the production compile; keep only the
+# snapshots imported by src/core/jlc-offline.ts.
+/fixtures/calibration/*
+!/fixtures/calibration/process.json
+!/fixtures/calibration/template-process.json
+
+# Only the compile-time bundling helper is required from scripts/.
+/scripts/*
+!/scripts/build-jlc-core.mjs

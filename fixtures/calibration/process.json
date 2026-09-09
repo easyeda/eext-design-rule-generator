@@ -1,0 +1,2536 @@
+{
+  "version": "06cd5ec6e312296e",
+  "capturedAt": "2026-08-31T15:34:14.155Z",
+  "source": "https://jlcpcb.com/hk/pcb-impedance-calculator",
+  "modes": [
+    {
+      "impedancePictureAccessId": "3a1ee01effae45d5a5c57da472d96937",
+      "pictureName": "共面单端（外层）",
+      "plateLayerNumber": 0,
+      "layerNumber": 1,
+      "impedancePattern": 2,
+      "createTime": "2021-11-11T06:15:33.000+00:00",
+      "pictureSize": "0",
+      "picturePath": "8753749971079544832",
+      "impedanceType": "CoatedCoplanarWaveguideWithLowerGnd1B",
+      "parameterList": [
+        {
+          "paramName": "H1",
+          "readme": "基材1厚度",
+          "defaultValue": 4.5,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "c2a12ff6b02f420c83a703155a42d229"
+        },
+        {
+          "paramName": "Er1",
+          "readme": "基材1介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "533f85c9874843eda9242d4635881367"
+        },
+        {
+          "paramName": "H2",
+          "readme": "基材2厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "28b59c59175546bb877f4c95ba726364"
+        },
+        {
+          "paramName": "Er2",
+          "readme": "基材2介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "af76aa94a26645b7bccc5ed483b59a32"
+        },
+        {
+          "paramName": "H3",
+          "readme": "基材3厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "32c81c73a2664707a0af72b9e59da12b"
+        },
+        {
+          "paramName": "Er3",
+          "readme": "基材3介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "18bfbd8e5a49451daa1a39f2dc14d3ef"
+        },
+        {
+          "paramName": "H4",
+          "readme": "基材4厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "6ae4ec19873d4cedb948398575d2e0e7"
+        },
+        {
+          "paramName": "Er4",
+          "readme": "基材4介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "73af5a2762aa4a52ae601230f394f260"
+        },
+        {
+          "paramName": "W1",
+          "readme": "线底宽度",
+          "defaultValue": 7,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "3c9b57a2b8684c049de0d11a76cdefc7"
+        },
+        {
+          "paramName": "W2",
+          "readme": "线顶宽度",
+          "defaultValue": 6.3,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "8f4ddde05370412d924e3bd78b2dfa32"
+        },
+        {
+          "paramName": "G1",
+          "readme": "地线底端宽度",
+          "defaultValue": 20,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "bcdd86a775d7459ca88ebba5c619ef74"
+        },
+        {
+          "paramName": "G2",
+          "readme": "地线顶端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "34af4e6a2a5c4c7882bc10c2b04fed11"
+        },
+        {
+          "paramName": "S1",
+          "readme": "走线间距",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "f456ac80ff3c4add829ef3eeb5d8ed52"
+        },
+        {
+          "paramName": "D1",
+          "readme": "线与地铜间距",
+          "defaultValue": 20,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "529a26be1a27427c88b90d846873d905"
+        },
+        {
+          "paramName": "O1",
+          "readme": "走线偏移",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "e068fea94dcf4920ac6ca5a5589d8c3f"
+        },
+        {
+          "paramName": "T1",
+          "readme": "铜厚",
+          "defaultValue": 1.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "2c6f40b4c70842a5a6e860fa3cc2255f"
+        },
+        {
+          "paramName": "REr",
+          "readme": "分割区域介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "8e87e67f7c264844a6c70ab7b734e52a"
+        },
+        {
+          "paramName": "C1",
+          "readme": "基材上覆盖层",
+          "defaultValue": 1.2,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "e898d4d598b84518bb841426cdb221c0"
+        },
+        {
+          "paramName": "C2",
+          "readme": "走线上覆盖层",
+          "defaultValue": 0.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "ad7447f0b98242cf9e91a348539d7286"
+        },
+        {
+          "paramName": "C3",
+          "readme": "走线间覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "27ca454faa564dd1bf29f6ce2963139d"
+        },
+        {
+          "paramName": "CEr",
+          "readme": "覆盖层介电值",
+          "defaultValue": 3.8,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "471218f477884a12b0f00a117f7523a5"
+        },
+        {
+          "paramName": "HZ0",
+          "readme": "半成品阻值",
+          "defaultValue": 53,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "15e1dd07cf424d918cb2b617a8182559"
+        }
+      ],
+      "usePurpose": 0,
+      "fileStoreId": "8753749971079544832",
+      "impedanceStage": 0
+    },
+    {
+      "impedancePictureAccessId": "e1365eca0b14440cb167420e0fed5ca1",
+      "pictureName": "单端阻抗（内层）",
+      "plateLayerNumber": 0,
+      "layerNumber": 2,
+      "impedancePattern": 0,
+      "createTime": "2021-11-11T06:26:41.000+00:00",
+      "pictureSize": "0",
+      "picturePath": "8753750290360246272",
+      "impedanceType": "OffsetStripline1B1A",
+      "parameterList": [
+        {
+          "paramName": "H1",
+          "readme": "基材1厚度",
+          "defaultValue": 4.25,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "50d8c8ef2e304760bed31f57e0733dc6"
+        },
+        {
+          "paramName": "Er1",
+          "readme": "基材1介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "0c3e992525444589b6a8bcf43a4b5195"
+        },
+        {
+          "paramName": "H2",
+          "readme": "基材2厚度",
+          "defaultValue": 40,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "7fa1060a0e624cf09a8f97bd6d3d4997"
+        },
+        {
+          "paramName": "Er2",
+          "readme": "基材2介电值",
+          "defaultValue": 4.2,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "670d72374c5542d8980ab59725615ae7"
+        },
+        {
+          "paramName": "H3",
+          "readme": "基材3厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "73ad64f330ae47789271c5c19d41cac3"
+        },
+        {
+          "paramName": "Er3",
+          "readme": "基材3介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "e642a82445014d3c8ed0f3ce8672b0a6"
+        },
+        {
+          "paramName": "H4",
+          "readme": "基材4厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "e04600081fba42f39cf57ac343391eec"
+        },
+        {
+          "paramName": "Er4",
+          "readme": "基材4介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "2146e35ed80447e78ec8ba1d629298bb"
+        },
+        {
+          "paramName": "W1",
+          "readme": "线底宽度",
+          "defaultValue": 7,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "3f1c0d877e03498fa8a715ddba12dfb4"
+        },
+        {
+          "paramName": "W2",
+          "readme": "线顶宽度",
+          "defaultValue": 6.5,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "51f9597369a641809d9aa64f73fc3a60"
+        },
+        {
+          "paramName": "G1",
+          "readme": "地线底端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "d4c4cb1805ab4dfc8e59e09cf2a714aa"
+        },
+        {
+          "paramName": "G2",
+          "readme": "地线顶端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "e72e57c5ab4448ba93dc60e8f0f9a050"
+        },
+        {
+          "paramName": "S1",
+          "readme": "走线间距",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "cbf42ff46dcd45d892a26567cf6c14a9"
+        },
+        {
+          "paramName": "D1",
+          "readme": "线与地铜间距",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "2151af0bda2049af81dd7cfb0bb4a4ac"
+        },
+        {
+          "paramName": "O1",
+          "readme": "走线偏移",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "c1953496e32144eb87d36e324798f791"
+        },
+        {
+          "paramName": "T1",
+          "readme": "铜厚",
+          "defaultValue": 0.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "1c1dea302e814dfba9a3f12af545b1ef"
+        },
+        {
+          "paramName": "REr",
+          "readme": "分割区域介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "88223d512ebf481c8ded34cf47fba9d1"
+        },
+        {
+          "paramName": "C1",
+          "readme": "基材上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "fd59f1727d68443c892ff9885c674599"
+        },
+        {
+          "paramName": "C2",
+          "readme": "走线上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "606dd68275e54324b7c83cfc28b53fa9"
+        },
+        {
+          "paramName": "C3",
+          "readme": "走线间覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "127bebd8e8354b25a1c670e1346ec50d"
+        },
+        {
+          "paramName": "CEr",
+          "readme": "覆盖层介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "a4eb56f1e42c45c7b70dc95543a7170e"
+        },
+        {
+          "paramName": "HZ0",
+          "readme": "半成品阻值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "d2327f5f55614e29b033683c3c6a6abf"
+        }
+      ],
+      "usePurpose": 0,
+      "fileStoreId": "8753750290360246272",
+      "impedanceStage": 0
+    },
+    {
+      "impedancePictureAccessId": "d58a6e83b7894fc1909127f502d845d9",
+      "pictureName": "共面单端阻抗（内层）",
+      "plateLayerNumber": 0,
+      "layerNumber": 2,
+      "impedancePattern": 2,
+      "createTime": "2021-11-11T06:37:51.000+00:00",
+      "pictureSize": "0",
+      "picturePath": "8753750546470809600",
+      "impedanceType": "OffsetCoplanarWaveguide1B1A",
+      "parameterList": [
+        {
+          "paramName": "H1",
+          "readme": "基材1厚度",
+          "defaultValue": 4.25,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "d34be78b312043f48ea67d221d8e59a4"
+        },
+        {
+          "paramName": "Er1",
+          "readme": "基材1介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "329925eff11a4b7eb4b59f2af2190b07"
+        },
+        {
+          "paramName": "H2",
+          "readme": "基材2厚度",
+          "defaultValue": 4.25,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "c5f09d2d9b2b4498b664c72dc7999dec"
+        },
+        {
+          "paramName": "Er2",
+          "readme": "基材2介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "0f62ee6d89c34aa78feec5cec4e4bcaf"
+        },
+        {
+          "paramName": "H3",
+          "readme": "基材3厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "fc9df7f41de449459c1c933ce0b478d2"
+        },
+        {
+          "paramName": "Er3",
+          "readme": "基材3介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "a2ce7b61478e499da09dbd2ded00e7f1"
+        },
+        {
+          "paramName": "H4",
+          "readme": "基材4厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "e1d534c48c414ec2ac86e9338c270b1f"
+        },
+        {
+          "paramName": "Er4",
+          "readme": "基材4介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "f12dc8372cde4c49b90fe68c6adfc707"
+        },
+        {
+          "paramName": "W1",
+          "readme": "线底宽度",
+          "defaultValue": 7,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "b34ff4a47c9842daa757e1545734183a"
+        },
+        {
+          "paramName": "W2",
+          "readme": "线顶宽度",
+          "defaultValue": 6.5,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "bcf788d5c11744329489ed2c90a7351f"
+        },
+        {
+          "paramName": "G1",
+          "readme": "地线底端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "f7de7ac31ef44b02b031609a574ad1f4"
+        },
+        {
+          "paramName": "G2",
+          "readme": "地线顶端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "109cb6e994ac4224baa72921560eb09a"
+        },
+        {
+          "paramName": "S1",
+          "readme": "走线间距",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "5bd7e20c5a6049f9a54a4f0701f2739c"
+        },
+        {
+          "paramName": "D1",
+          "readme": "线与地铜间距",
+          "defaultValue": 8,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "1caff76a85d745049cd0697af7d0f9f8"
+        },
+        {
+          "paramName": "O1",
+          "readme": "走线偏移",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "73a44ecc4dc9429094615a7e7ed83a1d"
+        },
+        {
+          "paramName": "T1",
+          "readme": "铜厚",
+          "defaultValue": 0.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "629a2852454849dca33b9814d15ca91c"
+        },
+        {
+          "paramName": "REr",
+          "readme": "分割区域介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "28ed4276707740ebb257da5c352aaea9"
+        },
+        {
+          "paramName": "C1",
+          "readme": "基材上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "a880f24875534bfab2ebd9ebd658230f"
+        },
+        {
+          "paramName": "C2",
+          "readme": "走线上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "09ecc9199390472584a708fb6b347a8e"
+        },
+        {
+          "paramName": "C3",
+          "readme": "走线间覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "66ca117c72334beb8fbc222dd5eb3edb"
+        },
+        {
+          "paramName": "CEr",
+          "readme": "覆盖层介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "d20e7ec781a742758e13ef9b15028cb8"
+        },
+        {
+          "paramName": "HZ0",
+          "readme": "半成品阻值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "725e7fc9974d4c8493d3a5bb84f80f25"
+        }
+      ],
+      "usePurpose": 1,
+      "fileStoreId": "8753750546470809600",
+      "impedanceStage": 0
+    },
+    {
+      "impedancePictureAccessId": "4543ea0bb5944872b08445bf46742b7f",
+      "pictureName": "共面单端阻抗（不带防焊）",
+      "plateLayerNumber": 0,
+      "layerNumber": 1,
+      "impedancePattern": 2,
+      "createTime": "2021-11-11T06:56:28.000+00:00",
+      "pictureSize": "0",
+      "picturePath": "8753750745246179328",
+      "impedanceType": "SurfaceCoplanarWaveguideWithLowerGnd1B",
+      "parameterList": [
+        {
+          "paramName": "H1",
+          "readme": "基材1厚度",
+          "defaultValue": 8.5,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "360b894cae9c4d6eb3dc3449d7775102"
+        },
+        {
+          "paramName": "Er1",
+          "readme": "基材1介电值",
+          "defaultValue": 4.2,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "2237cc333bc74516952a4ae97d2864bb"
+        },
+        {
+          "paramName": "H2",
+          "readme": "基材2厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "ab8d5f64230c411b8a494717da54fd6a"
+        },
+        {
+          "paramName": "Er2",
+          "readme": "基材2介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "c2ef6cc231dc4a76bb0dd6a2c75d3c68"
+        },
+        {
+          "paramName": "H3",
+          "readme": "基材3厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "781c912bbda841df8d55cd5ab75cba97"
+        },
+        {
+          "paramName": "Er3",
+          "readme": "基材3介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "9bc10a0d1cbd4654a450ffd7bd0a3d55"
+        },
+        {
+          "paramName": "H4",
+          "readme": "基材4厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "1710357347284e8f995616e7e44a8326"
+        },
+        {
+          "paramName": "Er4",
+          "readme": "基材4介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "5fbf8974b9c3462c90e539ee62547cde"
+        },
+        {
+          "paramName": "W1",
+          "readme": "线底宽度",
+          "defaultValue": 7,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "6b6011497cfd4ef8aea26a68128437fa"
+        },
+        {
+          "paramName": "W2",
+          "readme": "线顶宽度",
+          "defaultValue": 6,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "4f0f8b0b877b48d49c1d20fb2ee46d70"
+        },
+        {
+          "paramName": "G1",
+          "readme": "地线底端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "79291d012ad2469c97440b8214c2cc40"
+        },
+        {
+          "paramName": "G2",
+          "readme": "地线顶端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "c7765cf706ec4fc4b05b8c77a8f67b0a"
+        },
+        {
+          "paramName": "S1",
+          "readme": "走线间距",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "6961db2a864a44158bd827ae9b7ce552"
+        },
+        {
+          "paramName": "D1",
+          "readme": "线与地铜间距",
+          "defaultValue": 8,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "506f24be8d0845eb85bc7f609b81ca81"
+        },
+        {
+          "paramName": "O1",
+          "readme": "走线偏移",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "fff9a7806da04765bea55f7d4a8c3ee8"
+        },
+        {
+          "paramName": "T1",
+          "readme": "铜厚",
+          "defaultValue": 1.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "0b39f3e1b0d44477ae7def58e29fae76"
+        },
+        {
+          "paramName": "REr",
+          "readme": "分割区域介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "d2ba55ec9a554e79a0e73128b578fe17"
+        },
+        {
+          "paramName": "C1",
+          "readme": "基材上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "37ccf3eb83844aa2b292bee24d934c97"
+        },
+        {
+          "paramName": "C2",
+          "readme": "走线上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "6b18784d5e1c4ecbaeb761be7aff56e6"
+        },
+        {
+          "paramName": "C3",
+          "readme": "走线间覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "013cc797fdb94ccebe16d474036f964a"
+        },
+        {
+          "paramName": "CEr",
+          "readme": "覆盖层介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "a40f4c75de934198a3c39f7872cdc15a"
+        },
+        {
+          "paramName": "HZ0",
+          "readme": "半成品阻值",
+          "defaultValue": 53,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "02c06ee870ee497fb1d3d025cf64586c"
+        }
+      ],
+      "usePurpose": 1,
+      "fileStoreId": "8753750745246179328",
+      "impedanceStage": 0
+    },
+    {
+      "impedancePictureAccessId": "ebadd5967a544da18bd98b3f8af4e694",
+      "pictureName": "共面差分阻抗（外层）",
+      "plateLayerNumber": 0,
+      "layerNumber": 1,
+      "impedancePattern": 3,
+      "createTime": "2021-11-11T06:29:52.000+00:00",
+      "pictureSize": "0",
+      "picturePath": "8753750989016424448",
+      "impedanceType": "DiffCoatedCoplanarWaveguideWithLowerGnd1B",
+      "parameterList": [
+        {
+          "paramName": "H1",
+          "readme": "基材1厚度",
+          "defaultValue": 8.5,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "3996082c3fcb424da0a34899c0d545d6"
+        },
+        {
+          "paramName": "Er1",
+          "readme": "基材1介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "81977d7bf1fe4be684381c269b8743dc"
+        },
+        {
+          "paramName": "H2",
+          "readme": "基材2厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "6ae52ac9741b4bbe8fdfedc2a1860255"
+        },
+        {
+          "paramName": "Er2",
+          "readme": "基材2介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "fc6ff1717e9048938d0ebb6a5c29393b"
+        },
+        {
+          "paramName": "H3",
+          "readme": "基材3厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "10a1c27ebe23438883f67e7d4805d8f0"
+        },
+        {
+          "paramName": "Er3",
+          "readme": "基材3介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "f958b200c9e34863b9a46c7914651a1d"
+        },
+        {
+          "paramName": "H4",
+          "readme": "基材4厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "cd269056b5014d2aa8865be615761cc0"
+        },
+        {
+          "paramName": "Er4",
+          "readme": "基材4介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "b8adfff8a0974b5b9cb684d5a700fe28"
+        },
+        {
+          "paramName": "W1",
+          "readme": "线底宽度",
+          "defaultValue": 7,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "d9594c1133704e6bab19cf9505c1615a"
+        },
+        {
+          "paramName": "W2",
+          "readme": "线顶宽度",
+          "defaultValue": 6.3,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "0ddee8ffa5124bf18e65618165c1b522"
+        },
+        {
+          "paramName": "G1",
+          "readme": "地线底端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "2761f42b79a4487fae9a1aad82786081"
+        },
+        {
+          "paramName": "G2",
+          "readme": "地线顶端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "be9a40053acc4faab91c9528e391bcff"
+        },
+        {
+          "paramName": "S1",
+          "readme": "走线间距",
+          "defaultValue": 8,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "df2dd482813d4933bd3fb4e0c1581fb1"
+        },
+        {
+          "paramName": "D1",
+          "readme": "线与地铜间距",
+          "defaultValue": 8,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "dd40253f406846b0b21a650b160ddf80"
+        },
+        {
+          "paramName": "O1",
+          "readme": "走线偏移",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "a640bfd18b544b2a8ff72559be18acbd"
+        },
+        {
+          "paramName": "T1",
+          "readme": "铜厚",
+          "defaultValue": 1.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "2750f1ae502c4a6fb8369b6dd5b83cf6"
+        },
+        {
+          "paramName": "REr",
+          "readme": "分割区域介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "afa6618b796c4887a8497ba2b76dca31"
+        },
+        {
+          "paramName": "C1",
+          "readme": "基材上覆盖层",
+          "defaultValue": 1.2,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "200a4a3329b64c448cd0bb3445cd3337"
+        },
+        {
+          "paramName": "C2",
+          "readme": "走线上覆盖层",
+          "defaultValue": 0.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "d560db0474c74165b6dc48455f550a6e"
+        },
+        {
+          "paramName": "C3",
+          "readme": "走线间覆盖层",
+          "defaultValue": 1.2,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "6ce2bbd8a0b14ec0a9f665810bf751fc"
+        },
+        {
+          "paramName": "CEr",
+          "readme": "覆盖层介电值",
+          "defaultValue": 3.8,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "d5e37cb0c316426fb13c785ce17b9404"
+        },
+        {
+          "paramName": "HZ0",
+          "readme": "半成品阻值",
+          "defaultValue": 108,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "74c64bd3015d4680a6e7f57414e056fb"
+        }
+      ],
+      "usePurpose": 1,
+      "fileStoreId": "8753750989016424448",
+      "impedanceStage": 0
+    },
+    {
+      "impedancePictureAccessId": "a01d5eee31314e95a003d6cbab16aeb5",
+      "pictureName": "共面差分阻抗（内层）",
+      "plateLayerNumber": 0,
+      "layerNumber": 2,
+      "impedancePattern": 3,
+      "createTime": "2021-11-11T06:45:46.000+00:00",
+      "pictureSize": "0",
+      "picturePath": "8753751230545555456",
+      "impedanceType": "DiffOffsetCoplanarWaveguide1B1A",
+      "parameterList": [
+        {
+          "paramName": "H1",
+          "readme": "基材1厚度",
+          "defaultValue": 4.25,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "7a0cb479c6204d128bdbcb5de432b7f7"
+        },
+        {
+          "paramName": "Er1",
+          "readme": "基材1介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "9b581bb56fa7494fa0d2b8a65c8c30c8"
+        },
+        {
+          "paramName": "H2",
+          "readme": "基材2厚度",
+          "defaultValue": 4.25,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "4800f2d85b44465e8599b36379211efb"
+        },
+        {
+          "paramName": "Er2",
+          "readme": "基材2介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "7cbfb79dfe92475ea5265938c975f096"
+        },
+        {
+          "paramName": "H3",
+          "readme": "基材3厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "48298144a95248d5bc6fdeeb6f8230d5"
+        },
+        {
+          "paramName": "Er3",
+          "readme": "基材3介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "945ad3602de84b02bdb3f03cb4d82580"
+        },
+        {
+          "paramName": "H4",
+          "readme": "基材4厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "d2e363a789854b4392ed8f46c8101935"
+        },
+        {
+          "paramName": "Er4",
+          "readme": "基材4介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "f490da09c4504a938792c9dc5e2dd0b7"
+        },
+        {
+          "paramName": "W1",
+          "readme": "线底宽度",
+          "defaultValue": 7,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "0a18718e90ad43fab5a070fd6bc0e2e6"
+        },
+        {
+          "paramName": "W2",
+          "readme": "线顶宽度",
+          "defaultValue": 6.5,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "c92baf7de49a4d8084d84278b9f8b53a"
+        },
+        {
+          "paramName": "G1",
+          "readme": "地线底端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "feae1deeb6894c0991c3def15c8e6f8f"
+        },
+        {
+          "paramName": "G2",
+          "readme": "地线顶端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "3a5c241a98bf48d1b9c6c7ee4a061c82"
+        },
+        {
+          "paramName": "S1",
+          "readme": "走线间距",
+          "defaultValue": 8,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "77f6cb6cbba146a0930cf2a7d02664d0"
+        },
+        {
+          "paramName": "D1",
+          "readme": "线与地铜间距",
+          "defaultValue": 8,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "c9a3ca8549154bc58bb3f664cc866d0d"
+        },
+        {
+          "paramName": "O1",
+          "readme": "走线偏移",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "49a122466d944ba1b18d1856bd6ef99c"
+        },
+        {
+          "paramName": "T1",
+          "readme": "铜厚",
+          "defaultValue": 0.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "126bcc84d1024c55b59e514e4c41d6e8"
+        },
+        {
+          "paramName": "REr",
+          "readme": "分割区域介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "7f1d0af74b804fcc95d031770e7c71da"
+        },
+        {
+          "paramName": "C1",
+          "readme": "基材上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "998f2035b1d540b3b39b6e929e5bc106"
+        },
+        {
+          "paramName": "C2",
+          "readme": "走线上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "1f7842e7c5424a73be4e16ee00a3cd3f"
+        },
+        {
+          "paramName": "C3",
+          "readme": "走线间覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "b3b97c7a57c14b69a4d2c7b305d3e6aa"
+        },
+        {
+          "paramName": "CEr",
+          "readme": "覆盖层介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "2c59c416c605436c843f0ba086702ad5"
+        },
+        {
+          "paramName": "HZ0",
+          "readme": "半成品阻值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "0ddb945f63284fc0b3ae749fb402dfe7"
+        }
+      ],
+      "usePurpose": 1,
+      "fileStoreId": "8753751230545555456",
+      "impedanceStage": 0
+    },
+    {
+      "impedancePictureAccessId": "20488af71540465bbd9f996303d955f9",
+      "pictureName": "单端阻抗（不带防焊）",
+      "plateLayerNumber": 0,
+      "layerNumber": 1,
+      "impedancePattern": 0,
+      "createTime": "2021-11-11T06:33:26.000+00:00",
+      "pictureSize": "0",
+      "picturePath": "8753751448471171072",
+      "impedanceType": "SurfaceMicrostrip1B",
+      "parameterList": [
+        {
+          "paramName": "H1",
+          "readme": "基材1厚度",
+          "defaultValue": 8.5,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "bfd6530f62414f99a27de3f9174666ed"
+        },
+        {
+          "paramName": "Er1",
+          "readme": "基材1介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "2b6d079ffc004e87be439958c8589308"
+        },
+        {
+          "paramName": "H2",
+          "readme": "基材2厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "f5927cf8eaf84d26887e81348666db39"
+        },
+        {
+          "paramName": "Er2",
+          "readme": "基材2介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "819db9aee3a947b887c8d6a5daf37db8"
+        },
+        {
+          "paramName": "H3",
+          "readme": "基材3厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "22d6e90558b442788774dd14a400194e"
+        },
+        {
+          "paramName": "Er3",
+          "readme": "基材3介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "a83d797b44254f06bc113011c8d57112"
+        },
+        {
+          "paramName": "H4",
+          "readme": "基材4厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "ac9df99e052641969942477b19b73515"
+        },
+        {
+          "paramName": "Er4",
+          "readme": "基材4介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "5f463952e0654ea2a167abbc3695695b"
+        },
+        {
+          "paramName": "W1",
+          "readme": "线底宽度",
+          "defaultValue": 7,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "5de516518bf347ec8ef74059efde709b"
+        },
+        {
+          "paramName": "W2",
+          "readme": "线顶宽度",
+          "defaultValue": 6.3,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "86d81da73c7041f29e2a4a77a22c8274"
+        },
+        {
+          "paramName": "G1",
+          "readme": "地线底端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "4098cdf7ad7c4b189a11715c7da83329"
+        },
+        {
+          "paramName": "G2",
+          "readme": "地线顶端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "20c1d0d9904c43438acd207e4260caa3"
+        },
+        {
+          "paramName": "S1",
+          "readme": "走线间距",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "5c6119810a8541f09fa347921adbc042"
+        },
+        {
+          "paramName": "D1",
+          "readme": "线与地铜间距",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "40e29193394e4e69a5b459df6c661c45"
+        },
+        {
+          "paramName": "O1",
+          "readme": "走线偏移",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "9895b7c3b06c4783b325ba49f0f6f3e7"
+        },
+        {
+          "paramName": "T1",
+          "readme": "铜厚",
+          "defaultValue": 1.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "4393c43193554f6fb79f0e9bffd43e42"
+        },
+        {
+          "paramName": "REr",
+          "readme": "分割区域介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "deb935c369094472bb5f415910b50b4b"
+        },
+        {
+          "paramName": "C1",
+          "readme": "基材上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "f78eabe8ae104c939092d038581b8366"
+        },
+        {
+          "paramName": "C2",
+          "readme": "走线上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "6af8bf0883694dbe8b24f0f92808b5e1"
+        },
+        {
+          "paramName": "C3",
+          "readme": "走线间覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "9a8c788b70dd4e2d9a631b3200fa3f64"
+        },
+        {
+          "paramName": "CEr",
+          "readme": "覆盖层介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "25cb49f2f5584b4f805f8c9e2b7e63bd"
+        },
+        {
+          "paramName": "HZ0",
+          "readme": "半成品阻值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "617bb60e9a8a499ab6c9136a0c7d5d46"
+        }
+      ],
+      "usePurpose": 1,
+      "fileStoreId": "8753751448471171072",
+      "impedanceStage": 0
+    },
+    {
+      "impedancePictureAccessId": "4d99bf5beb6c4bf7b887d23da78a709a",
+      "pictureName": "差分阻抗（内层）",
+      "plateLayerNumber": 0,
+      "layerNumber": 2,
+      "impedancePattern": 1,
+      "createTime": "2021-11-11T06:51:58.000+00:00",
+      "pictureSize": "0",
+      "picturePath": "8753751700580233216",
+      "impedanceType": "DiffOffsetStripline1B1A",
+      "parameterList": [
+        {
+          "paramName": "H1",
+          "readme": "基材1厚度",
+          "defaultValue": 4.25,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "a8aff367b28c435daf42503262a46eac"
+        },
+        {
+          "paramName": "Er1",
+          "readme": "基材1介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "b413fd662114435d948f865cd4f47245"
+        },
+        {
+          "paramName": "H2",
+          "readme": "基材2厚度",
+          "defaultValue": 4.25,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "19004d30c3824e639748b49c33169e3a"
+        },
+        {
+          "paramName": "Er2",
+          "readme": "基材2介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "62c8a91886ae4cf99acbb2d8c2cd44eb"
+        },
+        {
+          "paramName": "H3",
+          "readme": "基材3厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "7d45751178334b29a2f07b20703753b4"
+        },
+        {
+          "paramName": "Er3",
+          "readme": "基材3介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "534a160c4d7f4a4e8a6559533e4dab29"
+        },
+        {
+          "paramName": "H4",
+          "readme": "基材4厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "c5ddff58d00c4b42b2c0a1c14228993e"
+        },
+        {
+          "paramName": "Er4",
+          "readme": "基材4介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "dd24402545924f4e8d499d377b238354"
+        },
+        {
+          "paramName": "W1",
+          "readme": "线底宽度",
+          "defaultValue": 7,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "032d655d4af042bdb24085b787c63eae"
+        },
+        {
+          "paramName": "W2",
+          "readme": "线顶宽度",
+          "defaultValue": 6.5,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "a138b5af7a1e4d8090beddaa2137a3d5"
+        },
+        {
+          "paramName": "G1",
+          "readme": "地线底端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "3c6fab6f2188442bb8ba0e234e4fe21f"
+        },
+        {
+          "paramName": "G2",
+          "readme": "地线顶端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "6591d82705d340e2a1b59ae888226f14"
+        },
+        {
+          "paramName": "S1",
+          "readme": "走线间距",
+          "defaultValue": 8,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "aa0a7c42052e4d4d9ca3c20ec05697e7"
+        },
+        {
+          "paramName": "D1",
+          "readme": "线与地铜间距",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "44051ee3682943ffa97610526c98f2ca"
+        },
+        {
+          "paramName": "O1",
+          "readme": "走线偏移",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "2c146d6943ce4ea7b549d79da7f6b9a9"
+        },
+        {
+          "paramName": "T1",
+          "readme": "铜厚",
+          "defaultValue": 0.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "24a2a6f9ca1c434891538520576338cd"
+        },
+        {
+          "paramName": "REr",
+          "readme": "分割区域介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "c16a3669cc0a4bc9a6d5a8788af82c86"
+        },
+        {
+          "paramName": "C1",
+          "readme": "基材上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "c7811035f6854e60834885ece25f2ab9"
+        },
+        {
+          "paramName": "C2",
+          "readme": "走线上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "8945ef2e17d7468ea416f81bb02bc7c5"
+        },
+        {
+          "paramName": "C3",
+          "readme": "走线间覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "2c90896817dd4a3fbbc5e92194bc007c"
+        },
+        {
+          "paramName": "CEr",
+          "readme": "覆盖层介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "21ab32eea55d4067989733e42d279699"
+        },
+        {
+          "paramName": "HZ0",
+          "readme": "半成品阻值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "ed0073cbd50b4ae780da481e13d61c9b"
+        }
+      ],
+      "usePurpose": 0,
+      "fileStoreId": "8753751700580233216",
+      "impedanceStage": 0
+    },
+    {
+      "impedancePictureAccessId": "949153d9e51e4f3382f60793e85b855f",
+      "pictureName": "单端阻抗（外层）",
+      "plateLayerNumber": 0,
+      "layerNumber": 1,
+      "impedancePattern": 0,
+      "createTime": "2021-11-11T06:09:46.000+00:00",
+      "pictureSize": "0",
+      "picturePath": "8753751901115318272",
+      "impedanceType": "CoatedMicrostrip1B",
+      "parameterList": [
+        {
+          "paramName": "H1",
+          "readme": "基材1厚度",
+          "defaultValue": 5,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "45cb8d900a514d2abd7893b8d4fd8b76"
+        },
+        {
+          "paramName": "Er1",
+          "readme": "基材1介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "203fa4801a5f42e68f26ea2484a3a687"
+        },
+        {
+          "paramName": "H2",
+          "readme": "基材2厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "0649d952928441f6a1c0397a4332e51f"
+        },
+        {
+          "paramName": "Er2",
+          "readme": "基材2介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "050cff7742f945189e87814018b61574"
+        },
+        {
+          "paramName": "H3",
+          "readme": "基材3厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "d2b81201c51c47a094802ff6cb50386d"
+        },
+        {
+          "paramName": "Er3",
+          "readme": "基材3介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "99de3d948b3d46579e86c6304a17fc81"
+        },
+        {
+          "paramName": "H4",
+          "readme": "基材4厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "2c3b8399d9654990ba55e02ab4635edb"
+        },
+        {
+          "paramName": "Er4",
+          "readme": "基材4介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "098eb22daed94a98916cbea8824cbf4d"
+        },
+        {
+          "paramName": "W1",
+          "readme": "线底宽度",
+          "defaultValue": 8,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "7bf8864f82294f77ad36a8e38d7180b5"
+        },
+        {
+          "paramName": "W2",
+          "readme": "线顶宽度",
+          "defaultValue": 7.3,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "5e5d2e5e9f84469882d4ef205034b638"
+        },
+        {
+          "paramName": "G1",
+          "readme": "地线底端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "a16f7ddf26fd4a96ac40224303954944"
+        },
+        {
+          "paramName": "G2",
+          "readme": "地线顶端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "07f028f15ca94f9db595185488639d49"
+        },
+        {
+          "paramName": "S1",
+          "readme": "走线间距",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "2f1bbbac87f94a2a9fa189b3bdb1b1a6"
+        },
+        {
+          "paramName": "D1",
+          "readme": "线与地铜间距",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "6c95bba559584171ac18f5cb1d3bf0b5"
+        },
+        {
+          "paramName": "O1",
+          "readme": "走线偏移",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "e10eff0e9ae4491490b848d280a0e17d"
+        },
+        {
+          "paramName": "T1",
+          "readme": "铜厚",
+          "defaultValue": 1.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "e22f7e4cb38a408dbd49b16c8c1e869b"
+        },
+        {
+          "paramName": "REr",
+          "readme": "分割区域介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "c12e75a0d0f2461d9d4a16ad8a241d28"
+        },
+        {
+          "paramName": "C1",
+          "readme": "基材上覆盖层",
+          "defaultValue": 1.2,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "525d327a9a7c4d0ab8d6c2b9931ca092"
+        },
+        {
+          "paramName": "C2",
+          "readme": "走线上覆盖层",
+          "defaultValue": 0.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "e1684f61e186490aa0a7d46e02c18188"
+        },
+        {
+          "paramName": "C3",
+          "readme": "走线间覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "8bd2f0f72e3e422dbe7f2cd9ec35cb1f"
+        },
+        {
+          "paramName": "CEr",
+          "readme": "覆盖层介电值",
+          "defaultValue": 3.8,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "5977eeb13a4f4b5eb068c47dd9d16b0a"
+        },
+        {
+          "paramName": "HZ0",
+          "readme": "半成品阻值",
+          "defaultValue": 53,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "63eb87013a5c47e28e5ed62fff9ded93"
+        }
+      ],
+      "usePurpose": 1,
+      "fileStoreId": "8753751901115318272",
+      "impedanceStage": 0
+    },
+    {
+      "impedancePictureAccessId": "90e941d10ec9400baba2bd4d6bd28a99",
+      "pictureName": "差分阻抗（外层）",
+      "plateLayerNumber": 0,
+      "layerNumber": 1,
+      "impedancePattern": 1,
+      "createTime": "2021-11-11T06:21:33.000+00:00",
+      "pictureSize": "0",
+      "picturePath": "8753752129810284544",
+      "impedanceType": "DiffEdgeCoupledCoatedMicrostrip1B",
+      "parameterList": [
+        {
+          "paramName": "H1",
+          "readme": "基材1厚度",
+          "defaultValue": 5,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "5d76123cbfbe431896700dfd54d77da1"
+        },
+        {
+          "paramName": "Er1",
+          "readme": "基材1介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "2ece18c272c44874aa6d621ea3ad62ea"
+        },
+        {
+          "paramName": "H2",
+          "readme": "基材2厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "fc814b987f914e9f91bea0d58e697ac9"
+        },
+        {
+          "paramName": "Er2",
+          "readme": "基材2介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "07ce0b6e447242aa9c4b237d4425bb8f"
+        },
+        {
+          "paramName": "H3",
+          "readme": "基材3厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "6358b13d01144c3082ef89fa3104b364"
+        },
+        {
+          "paramName": "Er3",
+          "readme": "基材3介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "37ac71f464e94bedb249c5e26157422e"
+        },
+        {
+          "paramName": "H4",
+          "readme": "基材4厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "58cd4457d86d4c3a86fe648666a4f822"
+        },
+        {
+          "paramName": "Er4",
+          "readme": "基材4介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "8dd7ed2b9f16463080ec6900124bce04"
+        },
+        {
+          "paramName": "W1",
+          "readme": "线底宽度",
+          "defaultValue": 5.2,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "ceade4984e5847fe86d410b55568039e"
+        },
+        {
+          "paramName": "W2",
+          "readme": "线顶宽度",
+          "defaultValue": 4.5,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "9e85ddc7a0e5495681def55310a8f1af"
+        },
+        {
+          "paramName": "G1",
+          "readme": "地线底端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "46a3b32b499c4d429cc54e90118eb6a5"
+        },
+        {
+          "paramName": "G2",
+          "readme": "地线顶端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "b9300205dd0c424597929f848135efe5"
+        },
+        {
+          "paramName": "S1",
+          "readme": "走线间距",
+          "defaultValue": 8,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "5eb1197bf7d84dd584143cb3800803e3"
+        },
+        {
+          "paramName": "D1",
+          "readme": "线与地铜间距",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "4d14e8aa6cd044e19e87418b076b9b89"
+        },
+        {
+          "paramName": "O1",
+          "readme": "走线偏移",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "beda99ec175d4b1da4ed353c8017c4f5"
+        },
+        {
+          "paramName": "T1",
+          "readme": "铜厚",
+          "defaultValue": 1.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "52d69299a22948c580d678048446eb43"
+        },
+        {
+          "paramName": "REr",
+          "readme": "分割区域介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "3118aef5e7e14d24a1815594dd5a4b50"
+        },
+        {
+          "paramName": "C1",
+          "readme": "基材上覆盖层",
+          "defaultValue": 1.2,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "c7b74eb692a94f44828d91510877e012"
+        },
+        {
+          "paramName": "C2",
+          "readme": "走线上覆盖层",
+          "defaultValue": 0.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "089f5851b5ec43659eac895d394640dd"
+        },
+        {
+          "paramName": "C3",
+          "readme": "走线间覆盖层",
+          "defaultValue": 1.2,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "c484589beaa14d0c8e6d928da79f42a7"
+        },
+        {
+          "paramName": "CEr",
+          "readme": "覆盖层介电值",
+          "defaultValue": 3.8,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "cb5b813391f14cf58161295e5bde6371"
+        },
+        {
+          "paramName": "HZ0",
+          "readme": "半成品阻值",
+          "defaultValue": 108,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "edf1b95429254b08ac21f9ee7b74a8f9"
+        }
+      ],
+      "usePurpose": 1,
+      "fileStoreId": "8753752129810284544",
+      "impedanceStage": 0
+    },
+    {
+      "impedancePictureAccessId": "571bd23961d94a72b3ebe69d0d7329f3",
+      "pictureName": "差分阻抗（不带防焊）",
+      "plateLayerNumber": 0,
+      "layerNumber": 1,
+      "impedancePattern": 1,
+      "createTime": "2026-03-27T12:13:40.000+00:00",
+      "pictureSize": "0",
+      "picturePath": "8753754439660445696",
+      "impedanceType": "DiffEdgeCoupledSurfaceMicrostrip1B",
+      "parameterList": [
+        {
+          "paramName": "H1",
+          "readme": "基材1厚度",
+          "defaultValue": 8,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "82af77e731d24dca9cf18c7f16917039"
+        },
+        {
+          "paramName": "Er1",
+          "readme": "基材1介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "d3e5c2c2c6e746279399aaa9d5f4b492"
+        },
+        {
+          "paramName": "H2",
+          "readme": "基材2厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "953aa14e82f34b2a94e63c5d0f7b944d"
+        },
+        {
+          "paramName": "Er2",
+          "readme": "基材2介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "c10acfe2e8ce41d0973fc1aaca0ceb7f"
+        },
+        {
+          "paramName": "H3",
+          "readme": "基材3厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "35521b0e64a549c5b71e002d77e51a9f"
+        },
+        {
+          "paramName": "Er3",
+          "readme": "基材3介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "f7e7e39d3a65473490c470093914d421"
+        },
+        {
+          "paramName": "H4",
+          "readme": "基材4厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "189b7b65277e47e5abe318948f017c39"
+        },
+        {
+          "paramName": "Er4",
+          "readme": "基材4介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "3a0b1f1b8f3842b6a6700e3f267ed26c"
+        },
+        {
+          "paramName": "W1",
+          "readme": "线底宽度",
+          "defaultValue": 5.2,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "049ee77c759e40a18349b942221e570c"
+        },
+        {
+          "paramName": "W2",
+          "readme": "线顶宽度",
+          "defaultValue": 8,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "8f3af9a02d484017b8d7c2adba80642f"
+        },
+        {
+          "paramName": "G1",
+          "readme": "地线底端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "bea9203da3924f95887aaa3a160df701"
+        },
+        {
+          "paramName": "G2",
+          "readme": "地线顶端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "fa1a3697c35f4077903f2963bcd2741f"
+        },
+        {
+          "paramName": "S1",
+          "readme": "走线间距",
+          "defaultValue": 5,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "936f8b1e08254bf9a3fc4e2aba7659c1"
+        },
+        {
+          "paramName": "D1",
+          "readme": "线与地铜间距",
+          "defaultValue": 8,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "5845aa1c9f824c48b21d9db227e1df68"
+        },
+        {
+          "paramName": "O1",
+          "readme": "走线偏移",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "f5d32c219e52423da18a774f3bd3cf04"
+        },
+        {
+          "paramName": "T1",
+          "readme": "铜厚",
+          "defaultValue": 1.6,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "bbc44b2425754922bd4619d1d2c18df5"
+        },
+        {
+          "paramName": "REr",
+          "readme": "分割区域介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "bc85cc6a16b24161ad004c35169694d5"
+        },
+        {
+          "paramName": "C1",
+          "readme": "基材上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "07e4d825ba7041d2850a2d35147333e8"
+        },
+        {
+          "paramName": "C2",
+          "readme": "走线上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "26585ac1773d4d708e83278991afdde5"
+        },
+        {
+          "paramName": "C3",
+          "readme": "走线间覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "5c9035e2927d4a66a121a3de6fc3cd84"
+        },
+        {
+          "paramName": "CEr",
+          "readme": "覆盖层介电值",
+          "defaultValue": 3.8,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "4576206d2ec94415bba1cf16ee191907"
+        },
+        {
+          "paramName": "HZ0",
+          "readme": "半成品阻值",
+          "defaultValue": 108,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "71a346e7202e4704b14475bc463e20c7"
+        }
+      ],
+      "usePurpose": 1,
+      "fileStoreId": "8753754439660445696",
+      "impedanceStage": 0
+    },
+    {
+      "impedancePictureAccessId": "8b2efd9ffba2460390a794eb1abe802d",
+      "pictureName": "共面差分阻抗（不带防焊）",
+      "plateLayerNumber": 0,
+      "layerNumber": 1,
+      "impedancePattern": 3,
+      "createTime": "2026-04-14T12:05:00.000+00:00",
+      "pictureSize": "0",
+      "picturePath": "8753753029591322624",
+      "impedanceType": "DiffSurfaceCoplanarWaveguideWithLowerGnd1B",
+      "parameterList": [
+        {
+          "paramName": "H1",
+          "readme": "基材1厚度",
+          "defaultValue": 8.5,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "c81844e1119144838138cd7df7eea665"
+        },
+        {
+          "paramName": "Er1",
+          "readme": "基材1介电值",
+          "defaultValue": 4.3,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "bea515d7b4c8412e93c8164089810ddb"
+        },
+        {
+          "paramName": "H2",
+          "readme": "基材2厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "ae22b522cde14eb193c039ecabc8689a"
+        },
+        {
+          "paramName": "Er2",
+          "readme": "基材2介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "6d2206ad4f934879919be142b2dd7065"
+        },
+        {
+          "paramName": "H3",
+          "readme": "基材3厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "8264f6a9e1a746e08afc3d321b7ac23b"
+        },
+        {
+          "paramName": "Er3",
+          "readme": "基材3介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "4d240ac8f2b743c39e5b462eb397d1fe"
+        },
+        {
+          "paramName": "H4",
+          "readme": "基材4厚度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "92d01bedfc7d439aa76ae604fe7c3698"
+        },
+        {
+          "paramName": "Er4",
+          "readme": "基材4介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "fa22905da0ed45f696c8b8ff8e1b1413"
+        },
+        {
+          "paramName": "W1",
+          "readme": "线底宽度",
+          "defaultValue": 7,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "df963a661c5e4d6f92ca763ab343df2a"
+        },
+        {
+          "paramName": "W2",
+          "readme": "线顶宽度",
+          "defaultValue": 6,
+          "displayStatus": 2,
+          "impedanceParameterAccessId": "9e77b748bcde4930b121e87437d1147f"
+        },
+        {
+          "paramName": "G1",
+          "readme": "地线底端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "a49aadaa7a8743efb407b11208a75e96"
+        },
+        {
+          "paramName": "G2",
+          "readme": "地线顶端宽度",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "1a6627cc69fc403481acb2c03cc9d6a2"
+        },
+        {
+          "paramName": "S1",
+          "readme": "走线间距",
+          "defaultValue": 8,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "4db249c7079e43a0bc522e971291915f"
+        },
+        {
+          "paramName": "D1",
+          "readme": "线与地铜间距",
+          "defaultValue": 8,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "ee8fc0f2d549497e8c7172a42ff2c8a3"
+        },
+        {
+          "paramName": "O1",
+          "readme": "走线偏移",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "23749a98de2a4aefb33706262c3d9cf7"
+        },
+        {
+          "paramName": "T1",
+          "readme": "铜厚",
+          "defaultValue": 1.2,
+          "displayStatus": 1,
+          "impedanceParameterAccessId": "8122b15b480846c4bd04938f23bfcc5b"
+        },
+        {
+          "paramName": "REr",
+          "readme": "分割区域介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "d8ab6c7939124df8b819f37c4c63b92c"
+        },
+        {
+          "paramName": "C1",
+          "readme": "基材上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "ad22c32fc90145a3880e8b5adb858012"
+        },
+        {
+          "paramName": "C2",
+          "readme": "走线上覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "fb40d1b1741a41cc931b6e229634f2ed"
+        },
+        {
+          "paramName": "C3",
+          "readme": "走线间覆盖层",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "4868ea43147e4e6084f772c470afdc5a"
+        },
+        {
+          "paramName": "CEr",
+          "readme": "覆盖层介电值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "e2f92d0013504304bf15a33197aada98"
+        },
+        {
+          "paramName": "HZ0",
+          "readme": "半成品阻值",
+          "defaultValue": null,
+          "displayStatus": 4,
+          "impedanceParameterAccessId": "2b2b7ae88eac402ca52178c3a82c9e39"
+        }
+      ],
+      "usePurpose": 0,
+      "fileStoreId": "8753753029591322624",
+      "impedanceStage": 0
+    }
+  ],
+  "ranges": [
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "ce80d2d286de4d52815a3384773cca5d",
+      "createTime": "2026-05-13T05:56:56.000+00:00",
+      "dbUpdateTime": "2026-05-13T05:56:56.000+00:00",
+      "impedanceName": "HZ0",
+      "minValue": 0,
+      "maxValue": 0,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "39f4ce13fd974124b8e6aa498dee660b",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-03-26T02:15:53.000+00:00",
+      "impedanceName": "G2",
+      "minValue": 1,
+      "maxValue": 200,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "cad9f5ae4935427dae9d82229b58ab31",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-02-21T07:26:20.000+00:00",
+      "impedanceName": "CEr",
+      "minValue": 1,
+      "maxValue": 20,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "1ae379e646614dffab3fc4cc72e578cd",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-02-21T07:26:20.000+00:00",
+      "impedanceName": "C3",
+      "minValue": 1,
+      "maxValue": 20,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "d718d6be1e854d509fb6fb150376d17d",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-02-21T07:26:20.000+00:00",
+      "impedanceName": "C2",
+      "minValue": 1,
+      "maxValue": 20,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "e6615e6f600348fdaf50896441e84197",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-02-21T07:26:20.000+00:00",
+      "impedanceName": "C1",
+      "minValue": 1,
+      "maxValue": 20,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "4820c59075df4f7bb7f92d8e33e556a0",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-02-21T07:26:20.000+00:00",
+      "impedanceName": "REr",
+      "minValue": 1,
+      "maxValue": 20,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "ca545652ae91484a96441e2c802a2039",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-02-21T07:26:20.000+00:00",
+      "impedanceName": "T1",
+      "minValue": 1,
+      "maxValue": 20,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "af3e8ac72a9746c891c1f784123e6140",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-03-26T02:15:53.000+00:00",
+      "impedanceName": "O1",
+      "minValue": 1,
+      "maxValue": 200,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "acd28fabce7646f4a054ff8d33c844f3",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-03-26T02:15:53.000+00:00",
+      "impedanceName": "D1",
+      "minValue": 1,
+      "maxValue": 200,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "4da33ea1ca114a6d95c441e43896cc1f",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2024-02-20T03:59:30.000+00:00",
+      "impedanceName": "S1",
+      "minValue": 1,
+      "maxValue": 200,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "185d0bfbf8214ed88de51a0525e6dd18",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-04-21T03:46:04.000+00:00",
+      "impedanceName": "H1",
+      "minValue": 1,
+      "maxValue": 1000,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "25843d06e75a49c9944d29108a481509",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-03-26T02:15:53.000+00:00",
+      "impedanceName": "G1",
+      "minValue": 1,
+      "maxValue": 200,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "cb4e87cbd0b5418eaaf6031b09b6479f",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2026-05-21T03:48:35.000+00:00",
+      "impedanceName": "W2",
+      "minValue": 2,
+      "maxValue": 150,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "f3a6869c4c5b47a689e241bc3aa06830",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-03-26T02:15:53.000+00:00",
+      "impedanceName": "W1",
+      "minValue": 1,
+      "maxValue": 200,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "9d201b634f1f448d97f68e69b8643309",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-02-21T07:26:20.000+00:00",
+      "impedanceName": "Er4",
+      "minValue": 1,
+      "maxValue": 20,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "6b512e9d8b024d2e81e7e10566485315",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-04-21T03:46:04.000+00:00",
+      "impedanceName": "H4",
+      "minValue": 1,
+      "maxValue": 1000,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "f583c2bfe8a641078c550c8b72ad3c73",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-02-21T07:26:20.000+00:00",
+      "impedanceName": "Er3",
+      "minValue": 1,
+      "maxValue": 20,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "6c8ee39699684178bbdaa776c982ab6b",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-04-21T03:46:04.000+00:00",
+      "impedanceName": "H3",
+      "minValue": 1,
+      "maxValue": 1000,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "5d227b693e4547608047b0ccea41d0ba",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-02-21T07:26:19.000+00:00",
+      "impedanceName": "Er2",
+      "minValue": 1,
+      "maxValue": 20,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "811c7986c3e242c7a1639df54b3c763c",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-04-21T03:46:04.000+00:00",
+      "impedanceName": "H2",
+      "minValue": 1,
+      "maxValue": 1000,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    },
+    {
+      "impedanceDefaultValueKeyId": null,
+      "impedanceDefaultValueAccessId": "1776f27d67db4bbf832cc09981576b2b",
+      "createTime": "2021-12-29T08:56:54.000+00:00",
+      "dbUpdateTime": "2022-02-21T07:26:19.000+00:00",
+      "impedanceName": "Er1",
+      "minValue": 1,
+      "maxValue": 20,
+      "impedanceValue": null,
+      "readme": null,
+      "paramType": null,
+      "enableState": 1,
+      "deletedFlag": false,
+      "deletedTime": "1970-01-01T00:00:00.000+00:00"
+    }
+  ],
+  "coverlay": [
+    {
+      "impedanceConfigCoverlayId": 560413206669881340,
+      "systemCopperThickness": 1,
+      "coatingAboveSubstrate": 1,
+      "coatingAboveTrace": 0.6,
+      "coatingBetweenTraces": 1,
+      "layerType": 1,
+      "baseCopperThickness": 0.33
+    },
+    {
+      "impedanceConfigCoverlayId": 560413206669881340,
+      "systemCopperThickness": 1,
+      "coatingAboveSubstrate": 1,
+      "coatingAboveTrace": 0.6,
+      "coatingBetweenTraces": 1,
+      "layerType": 1,
+      "baseCopperThickness": 0.5
+    },
+    {
+      "impedanceConfigCoverlayId": 560413206669881340,
+      "systemCopperThickness": 0.5,
+      "coatingAboveSubstrate": 1,
+      "coatingAboveTrace": 0.6,
+      "coatingBetweenTraces": 1,
+      "layerType": 2,
+      "baseCopperThickness": 0.5
+    },
+    {
+      "impedanceConfigCoverlayId": 560413206669881340,
+      "systemCopperThickness": 1.5,
+      "coatingAboveSubstrate": 1,
+      "coatingAboveTrace": 0.6,
+      "coatingBetweenTraces": 1,
+      "layerType": 1,
+      "baseCopperThickness": 1
+    },
+    {
+      "impedanceConfigCoverlayId": 560413206669881340,
+      "systemCopperThickness": 1,
+      "coatingAboveSubstrate": 1,
+      "coatingAboveTrace": 0.6,
+      "coatingBetweenTraces": 1,
+      "layerType": 2,
+      "baseCopperThickness": 1
+    },
+    {
+      "impedanceConfigCoverlayId": 560413206669881340,
+      "systemCopperThickness": 2,
+      "coatingAboveSubstrate": 1.2,
+      "coatingAboveTrace": 0.8,
+      "coatingBetweenTraces": 1.2,
+      "layerType": 1,
+      "baseCopperThickness": 1.5
+    },
+    {
+      "impedanceConfigCoverlayId": 560413206669881340,
+      "systemCopperThickness": 1.5,
+      "coatingAboveSubstrate": 1,
+      "coatingAboveTrace": 0.6,
+      "coatingBetweenTraces": 1,
+      "layerType": 2,
+      "baseCopperThickness": 1.5
+    },
+    {
+      "impedanceConfigCoverlayId": 560413206669881340,
+      "systemCopperThickness": 2.5,
+      "coatingAboveSubstrate": 1.2,
+      "coatingAboveTrace": 0.8,
+      "coatingBetweenTraces": 1.2,
+      "layerType": 1,
+      "baseCopperThickness": 2
+    },
+    {
+      "impedanceConfigCoverlayId": 560413206669881340,
+      "systemCopperThickness": 2,
+      "coatingAboveSubstrate": 1.2,
+      "coatingAboveTrace": 0.8,
+      "coatingBetweenTraces": 1.2,
+      "layerType": 2,
+      "baseCopperThickness": 2
+    }
+  ],
+  "copper": [
+    {
+      "impedanceConfigCopperTraceWidthId": 560411994507636740,
+      "baseCopperThickness": 0.33,
+      "systemCopperThickness": 1,
+      "traceCopperThickness": 1.2,
+      "traceWidthDelta": 0.5,
+      "layerType": 1
+    },
+    {
+      "impedanceConfigCopperTraceWidthId": 560411994507636740,
+      "baseCopperThickness": 0.5,
+      "systemCopperThickness": 1,
+      "traceCopperThickness": 1.6,
+      "traceWidthDelta": 0.5,
+      "layerType": 1
+    },
+    {
+      "impedanceConfigCopperTraceWidthId": 560411994507636740,
+      "baseCopperThickness": 1,
+      "systemCopperThickness": 1.5,
+      "traceCopperThickness": 2.2,
+      "traceWidthDelta": 1,
+      "layerType": 1
+    },
+    {
+      "impedanceConfigCopperTraceWidthId": 560411994507636740,
+      "baseCopperThickness": 1.5,
+      "systemCopperThickness": 2,
+      "traceCopperThickness": 2.85,
+      "traceWidthDelta": 1,
+      "layerType": 1
+    },
+    {
+      "impedanceConfigCopperTraceWidthId": 560411994507636740,
+      "baseCopperThickness": 2,
+      "systemCopperThickness": 2.5,
+      "traceCopperThickness": 3.5,
+      "traceWidthDelta": 1.2,
+      "layerType": 1
+    },
+    {
+      "impedanceConfigCopperTraceWidthId": 560411994507636740,
+      "baseCopperThickness": 2,
+      "systemCopperThickness": 2,
+      "traceCopperThickness": 2.5,
+      "traceWidthDelta": 1.2,
+      "layerType": 2
+    },
+    {
+      "impedanceConfigCopperTraceWidthId": 560411994507636740,
+      "baseCopperThickness": 1.5,
+      "systemCopperThickness": 1.5,
+      "traceCopperThickness": 1.9,
+      "traceWidthDelta": 1,
+      "layerType": 2
+    },
+    {
+      "impedanceConfigCopperTraceWidthId": 560411994507636740,
+      "baseCopperThickness": 1,
+      "systemCopperThickness": 1,
+      "traceCopperThickness": 1.2,
+      "traceWidthDelta": 0.8,
+      "layerType": 2
+    },
+    {
+      "impedanceConfigCopperTraceWidthId": 560411994507636740,
+      "baseCopperThickness": 0.5,
+      "systemCopperThickness": 0.5,
+      "traceCopperThickness": 0.6,
+      "traceWidthDelta": 0.5,
+      "layerType": 2
+    }
+  ]
+}

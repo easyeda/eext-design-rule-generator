@@ -1,3 +1,5 @@
+import { parseStack } from './jlc-offline';
+
 export interface Material {
 	type: number;
 	material?: string;
@@ -65,60 +67,12 @@ export function matchingStackups(templates: StackupTemplate[], filter: StackupFi
 		&& !/自定义|无要求|Custom|No requirement|不要选用|后续取消|叠构重复|废弃|作废/.test(template.name || ''));
 }
 
-export function templateToStack(template: StackupTemplate, fallbackEr = 4.2): StackModel | null {
-	const copper: number[] = [];
-	const gaps: number[] = [];
-	const gapEr: number[] = [];
-	const gapLabels: string[] = [];
-	let pendingD = 0;
-	let pendingErD = 0;
-	let pendingNames: string[] = [];
-	const flushPending = () => {
-		if (!copper.length || pendingD <= 0)
-			return;
-		gaps.push(pendingD);
-		gapEr.push(pendingErD / pendingD || fallbackEr);
-		gapLabels.push(Array.from(new Set(pendingNames)).join(' + ') || '介质');
-		pendingD = 0;
-		pendingErD = 0;
-		pendingNames = [];
-	};
-	for (const material of template.materials) {
-		if (material.type === 1) {
-			flushPending();
-			copper.push(material.top || material.bottom || template.outerOz * 0.035);
-		}
-		else if (material.type === 2 || material.type === 3) {
-			if (copper.length)
-				flushPending();
-			copper.push(material.top || template.innerOz * 0.035);
-			gaps.push(material.d || 0);
-			gapEr.push(material.er || fallbackEr);
-			gapLabels.push(material.name || material.material || '芯板');
-			copper.push(material.bottom || template.innerOz * 0.035);
-		}
-		else if ((material.d || 0) > 0) {
-			pendingD += material.d || 0;
-			pendingErD += (material.d || 0) * (material.er || fallbackEr);
-			pendingNames.push(material.name || material.material || 'PP');
-		}
+export function templateToStack(template: StackupTemplate): StackModel | null {
+	try {
+		const parsed = parseStack(template);
+		return { id: template.id, code: template.code, name: template.name, layers: template.layers, thickness: template.thickness, charge: Boolean(template.charge), gaps: parsed.gaps, gapEr: parsed.ers, gapLabels: parsed.labels, copper: parsed.copper };
 	}
-	flushPending();
-	while (copper.length > template.layers)
-		copper.splice(Math.floor(copper.length / 2), 1);
-	while (gaps.length > template.layers - 1) {
-		const index = Math.floor(gaps.length / 2) - 1;
-		const distance = gaps[index] + gaps[index + 1];
-		gapEr[index] = (gapEr[index] * gaps[index] + gapEr[index + 1] * gaps[index + 1]) / distance;
-		gaps[index] = distance;
-		gapLabels[index] += ` + ${gapLabels[index + 1]}`;
-		gaps.splice(index + 1, 1);
-		gapEr.splice(index + 1, 1);
-		gapLabels.splice(index + 1, 1);
-	}
-	if (copper.length !== template.layers || gaps.length !== template.layers - 1)
-		return null;
-	return { id: template.id, code: template.code, name: template.name, layers: template.layers, thickness: template.thickness, charge: Boolean(template.charge), gaps, gapEr, gapLabels, copper };
+	catch { return null; }
 }
 
 function microstrip(width: number, height: number, thickness: number, er: number): number {

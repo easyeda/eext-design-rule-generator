@@ -11,11 +11,9 @@
 		<section class="command-bar panel">
 			<button class="btn primary" id="scanBtn">扫描当前 PCB</button>
 			<button class="btn" id="calculateBtn" disabled>计算设计规则</button>
-			<button class="btn" id="previewBtn" disabled>重新生成预览</button>
-			<button class="btn apply" id="applyBtn" disabled>应用设计规则</button>
-			<button class="btn danger" id="restoreBtn">恢复上次备份</button>
+			<button class="btn apply" id="applyBtn" disabled>生成设计规则</button>
 			<div class="command-meta">
-				<div class="status-card"><span id="statusDot"></span><div><strong id="statusTitle">准备扫描</strong><small id="statusDetail">未修改任何设计规则</small></div></div>
+				<div class="status-card"><span id="statusDot"></span><div><strong id="statusTitle">准备扫描</strong><small id="statusDetail">仅生成新配置，不修改当前规则</small></div></div>
 			</div>
 		</section>
 
@@ -40,8 +38,7 @@
 							<label>板材<select id="boardType"><option value="1">硬板</option><option value="3">HDI</option></select></label>
 							<label>外层铜厚 / oz<input id="outerOz" type="number" value="1" step="0.5"></label>
 							<label>内层铜厚 / oz<input id="innerOz" type="number" value="0.5" step="0.5"></label>
-							<label>参考介质厚 / mm<input id="dielectricHeight" type="number" value="0.18" step="0.01"></label>
-							<label>Dk<input id="er" type="number" value="4.2" step="0.1"></label>
+
 						</div>
 					</details>
 					<div id="stackPreview" class="stack-preview"></div>
@@ -66,7 +63,7 @@
 						<label class="checkbox-label"><input type="checkbox" id="widthGapComplement"> 线宽线距互补</label>
 						<label>参考层补全<select id="referenceMode"><option value="custom" selected>自定义</option><option value="ground">自动以地层作为参考层</option><option value="adjacent">自动以相邻层作为参考层</option></select></label>
 					</div>
-					<div class="table-wrap"><table><thead><tr><th>阻抗类型</th><th>目标 Ω</th><th>网络</th><th>阻抗层</th><th>上参考层</th><th>下参考层</th><th>线宽 W1 / mil</th><th>线距 S1 / mil</th><th>到铜 D1 / mil</th></tr></thead><tbody id="impedanceRows"><tr><td colspan="9" class="empty">请先扫描 PCB</td></tr></tbody></table></div>
+					<div class="table-wrap"><table><thead><tr><th>阻抗类型</th><th>目标 Ω</th><th>网络</th><th>阻抗层</th><th>上参考层</th><th>下参考层</th><th>初始 W1 / mil</th><th>线距 S1 / mil</th><th>到铜 D1 / mil</th><th>操作</th></tr></thead><tbody id="impedanceRows"><tr><td colspan="10" class="empty">请先扫描 PCB</td></tr></tbody></table></div>
 				</section>
 
 				<section class="panel section">
@@ -92,6 +89,7 @@
 					<div class="metric-grid"><div><strong id="ruleMetric">0</strong><span>规则配置</span></div><div><strong id="netMetric">0</strong><span>受控网络</span></div><div><strong id="pairMetric">0</strong><span>差分对</span></div><div><strong id="warningMetric">0</strong><span>告警</span></div></div>
 					<div id="ruleCards" class="rule-cards"><p class="empty small">暂无规则计划</p></div>
 				</section>
+			<section class="panel note-card naming-settings"><b>命名识别设置</b><label class="checkbox-label"><input type="checkbox" id="autoRuleColors"> 自动配置规则线颜色</label><p class="hint" id="ruleColorHint">已关闭：规则组默认颜色为 <code>#000000</code>，不会改写 PCB 网络颜色。</p></section>
 			<section class="panel note-card"><b>命名识别</b><p><code>_P/_N</code>、<code>_DP/_DM</code> 自动配对；USB 默认 90 Ω，其它差分默认 100 Ω；<code>_Z50</code> 等标签指定单端阻抗。</p><details class="advanced-settings compact"><summary>自定义命名规则（默认折叠）</summary><div class="form-grid"><label>规则 JSON<textarea id="customRules" rows="6" spellcheck="false" placeholder='[{"pattern":"^LVDS","kind":"differential","positiveSuffix":"_P","negativeSuffix":"_N","targetOhms":100}]'></textarea></label></div><p class="hint">kind 可选 differential / impedance / power / ground；differential 需提供 positiveSuffix、negativeSuffix、targetOhms；impedance 需提供 targetOhms。规则优先于内置识别。</p></details><b>制造提醒</b><p>阻抗值为工程初值。正式投板前仍需由板厂按最终叠层、阻焊和蚀刻补偿复核。</p></section>
 			<section class="panel note-card"><label class="checkbox-label"><input type="checkbox" id="aiEnabled"> 启用 AI 一键配置</label><details class="advanced-settings" id="aiSettings"><summary>AI 配置（OpenAI 兼容 API，默认折叠）</summary><div class="form-grid"><label>API Base URL<input id="aiBaseUrl" type="text" value="https://api.openai.com/v1" placeholder="https://api.openai.com/v1"></label><label>API Key<input id="aiApiKey" type="password" placeholder="sk-..."></label><label>模型<input id="aiModel" type="text" value="gpt-4o-mini"></label><label>温度<input id="aiTemperature" type="number" value="0.2" step="0.1" min="0" max="2"></label></div><button class="btn" id="aiTestBtn" type="button">测试连接</button><p class="hint">API Key 仅保存在本机 EasyEDA 扩展配置中，不会上传到任何第三方。兼容所有 OpenAI /chat/completions 格式端点。</p></details></section>
 			</aside>
@@ -113,6 +111,8 @@
 	<script src="/iframe/stackups.js"></script>
 	<script src="/iframe/jlc-models.js"></script>
 	<script src="/iframe/layer-thickness.js"></script>
+	<script src="/iframe/jlc-core.js"></script>
+	<script src="/iframe/jlc-calibration.js"></script>
 	<script src="/iframe/app.js"></script>
 </body>
 </html>

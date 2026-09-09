@@ -2,8 +2,10 @@
 	'use strict';
 	const $ = selector => document.querySelector(selector);
 	const api = globalThis.eda;
+	const impedanceCore = globalThis.ADR_JLC;
+	const calibration = globalThis.__ADR_JLC_CALIBRATION__;
+	if (!impedanceCore || !calibration) throw new Error('离线阻抗核心或校准数据未加载');
 	const state = { snapshot: null, classified: [], plan: null, stackups: globalThis.__ADR_STACKUPS__ || [], evaluations: [], selected: null, filter: 'all', netClasses: [], coplanar: { enabled: false, distanceMil: 20 }, aiInputs: [] };
-	const invalidNames = /自定义|无要求|Custom|No requirement|不要选用|后续取消|叠构重复|废弃|作废/;
 	const toast = (message, error = false) => { const element = $('#toast'); element.textContent = message; element.className = `toast show${error ? ' error' : ''}`; setTimeout(() => { element.className = 'toast'; }, 3200); };
 	const adrLog = (stage, data) => { const payload = data === undefined ? '' : data; console.log(`[ADR][${stage}]`, payload); return payload; };
 	const adrError = (stage, error) => { console.error(`[ADR][${stage}]`, error); };
@@ -11,10 +13,10 @@
 	const updateThicknessOptions = () => {
 		const layers = number('layers'), opts = (globalThis.__ADR_LAYER_THICKNESS__ || {})[String(layers)] || [1.6], sel = $('#thickness'), prev = Number(sel.value);
 		sel.innerHTML = opts.map(t => `<option value="${t}">${t}</option>`).join('');
-		sel.value = opts.includes(prev) ? String(prev) : String(opts[0]);
+		sel.value = opts.includes(prev) ? String(prev) : String(opts.includes(1.6) ? 1.6 : opts[0]);
 	};
 	function stackPreviewTemplates() {
-		const matches = state.stackups.filter(item => item.boardType === number('boardType') && item.layers === number('layers') && Math.abs(item.thickness - number('thickness')) < .001 && (item.layers === 2 || Math.abs(item.innerOz - number('innerOz')) < .001) && Math.abs(item.outerOz - number('outerOz')) < .001 && item.recommended === 1 && !invalidNames.test(item.name || ''));
+		const matches = state.stackups.filter(item => item.boardType === number('boardType') && item.layers === number('layers') && Math.abs(item.thickness - number('thickness')) < .001 && (item.layers === 2 || Math.abs(item.innerOz - number('innerOz')) < .001) && Math.abs(item.outerOz - number('outerOz')) < .001 && impedanceCore.isProductionTemplate(item));
 		return matches.map(templateToStack).filter(Boolean);
 	}
 	function renderStackPreview() {
@@ -51,6 +53,55 @@
 	const status = (title, detail) => { $('#statusTitle').textContent = title; $('#statusDetail').textContent = detail; };
 	const setProgress = (label, pct) => { const wrap = $('#progressWrap'); wrap.hidden = pct >= 100 || pct <= 0; $('#progressLabel').textContent = label; $('#progressFill').style.width = `${Math.min(100, Math.max(0, pct))}%`; $('#progressPct').textContent = `${Math.round(pct)}%`; };
 	const profileNumber = value => String(Math.round(value * 100) / 100).replace('.', '_');
+	const configurationNamePart = (value, fallback) => String(value || fallback).trim().replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').replace(/\s+/g, ' ').slice(0, 60) || fallback;
+	const projectBoardConfigurationName = (project, board) => `${configurationNamePart(project?.friendlyName || project?.name, '未命名工程')}-${configurationNamePart(board?.name || board?.pcb?.name, '未命名板子')}`;
+	const defaultRuleColor = { r: 0, g: 0, b: 0, alpha: 1 };
+	const highContrastColors = [
+		{ r: 230, g: 25, b: 75, alpha: 1 }, { r: 0, g: 130, b: 200, alpha: 1 },
+		{ r: 60, g: 180, b: 75, alpha: 1 }, { r: 245, g: 130, b: 48, alpha: 1 },
+		{ r: 145, g: 30, b: 180, alpha: 1 }, { r: 0, g: 160, b: 160, alpha: 1 },
+		{ r: 240, g: 50, b: 230, alpha: 1 }, { r: 170, g: 110, b: 40, alpha: 1 },
+		{ r: 0, g: 80, b: 255, alpha: 1 }, { r: 128, g: 0, b: 0, alpha: 1 },
+	];
+	const colorHex = color => `#${[color.r, color.g, color.b].map(value => value.toString(16).padStart(2, '0')).join('').toUpperCase()}`;
+	const colorSeed = value => [...value].reduce((hash, char) => ((hash * 33) ^ char.charCodeAt(0)) >>> 0, 5381);
+	function ruleColor(index, offset) {
+		if (!$('#autoRuleColors')?.checked) return { ...defaultRuleColor };
+		return { ...highContrastColors[(offset + index) % highContrastColors.length] };
+	}
+	function patchDifferentialRuleBindings(source, bindings) {
+		const newline = String(source ?? '').includes('\r\n') ? '\r\n' : '\n';
+		const lines = String(source ?? '').split(/\r?\n/);
+		const changes = [], matched = [], missing = [];
+		const wanted = new Map(bindings.flatMap(binding => binding.netNames.map(net => [String(net), binding.profileName])));
+		for (let index = 0; index < lines.length; index++) {
+			const line = lines[index];
+			if (!line.includes('"type":"RULE_SELECTOR"')) continue;
+			const separator = line.indexOf('||');
+			if (separator < 0) continue;
+			try {
+				const header = JSON.parse(line.slice(0, separator));
+				const selector = JSON.parse(header.id);
+				const netName = selector?.[0] === 'RULE_SELECTOR' && selector?.[1]?.[0] === 'NET' ? String(selector[1][1]) : '';
+				const profileName = wanted.get(netName);
+				if (!profileName) continue;
+				const hasTrailingPipe = line.endsWith('|');
+				const payloadText = line.slice(separator + 2, hasTrailingPipe ? -1 : undefined);
+				const payload = JSON.parse(payloadText);
+				payload.ruleKeyValue ||= {};
+				matched.push({ net: netName, profileName });
+				if (payload.ruleKeyValue.DIFFER_ENTAIL !== profileName) {
+					payload.ruleKeyValue.DIFFER_ENTAIL = profileName;
+					lines[index] = `${line.slice(0, separator + 2)}${JSON.stringify(payload)}${hasTrailingPipe ? '|' : ''}`;
+					changes.push({ net: netName, profileName });
+				}
+			} catch { /* Ignore unrelated or malformed source records. */ }
+		}
+		const matchedNets = new Set(matched.map(item => item.net));
+		for (const netName of wanted.keys()) if (!matchedNets.has(netName)) missing.push(netName);
+		return { text: lines.join(newline), changes, matched, missing };
+	}
+	globalThis.__ADR_TEST__ = { ...(globalThis.__ADR_TEST__ || {}), patchDifferentialRuleBindings, projectBoardConfigurationName };
 
 	function classify(nets) {
 		const set = new Set(nets);
@@ -105,20 +156,7 @@
 	}
 
 	const groupId = row => `${row.differential ? 'd' : 's'}_${row.target}_${row.layerPreset || 'x'}`;
-	const impedanceModes = [
-		{ value: 'CoatedMicrostrip1B', label: '单端阻抗（外层）', pattern: 0, layer: 'outer', differential: false, coplanar: false },
-		{ value: 'SurfaceMicrostrip1B', label: '单端阻抗（不带防焊）', pattern: 0, layer: 'outer', differential: false, coplanar: false },
-		{ value: 'OffsetStripline1B1A', label: '单端阻抗（内层）', pattern: 0, layer: 'inner', differential: false, coplanar: false },
-		{ value: 'DiffEdgeCoupledCoatedMicrostrip1B', label: '差分阻抗（外层）', pattern: 1, layer: 'outer', differential: true, coplanar: false },
-		{ value: 'DiffEdgeCoupledSurfaceMicrostrip1B', label: '差分阻抗（不带防焊）', pattern: 1, layer: 'outer', differential: true, coplanar: false },
-		{ value: 'DiffOffsetStripline1B1A', label: '差分阻抗（内层）', pattern: 1, layer: 'inner', differential: true, coplanar: false },
-		{ value: 'CoatedCoplanarWaveguideWithLowerGnd1B', label: '共面单端（外层）', pattern: 2, layer: 'outer', differential: false, coplanar: true },
-		{ value: 'SurfaceCoplanarWaveguideWithLowerGnd1B', label: '共面单端（不带防焊）', pattern: 2, layer: 'outer', differential: false, coplanar: true },
-		{ value: 'OffsetCoplanarWaveguide1B1A', label: '共面单端（内层）', pattern: 2, layer: 'inner', differential: false, coplanar: true },
-		{ value: 'DiffCoatedCoplanarWaveguideWithLowerGnd1B', label: '共面差分（外层）', pattern: 3, layer: 'outer', differential: true, coplanar: true },
-		{ value: 'DiffSurfaceCoplanarWaveguideWithLowerGnd1B', label: '共面差分（不带防焊）', pattern: 3, layer: 'outer', differential: true, coplanar: true },
-		{ value: 'DiffOffsetCoplanarWaveguide1B1A', label: '共面差分（内层）', pattern: 3, layer: 'inner', differential: true, coplanar: true },
-	];
+	const impedanceModes = impedanceCore.JLC_IMPEDANCE_MODES.map(item => ({ ...item, value: item.type, differential: item.usesS1, coplanar: item.usesD1 }));
 	const impedanceMode = value => impedanceModes.find(item => item.value === value) || impedanceModes[0];
 	const layerOptions = (selected, allowNone = false) => {
 		const layers = Math.max(2, number('layers'));
@@ -132,13 +170,17 @@
 			const differential = modeInfo.differential, coplanar = modeInfo.coplanar;
 			const target = number(`target_${id}`);
 			const min = differential ? 50 : 20, max = differential ? 150 : 90;
-			if (target < min || target > max) throw new Error(`${differential ? '差分' : '单端/共面单端'}阻抗必须在 ${min}~${max} Ω 范围内`);
+			if (!Number.isFinite(target) || target < min || target > max) throw new Error(`${differential ? '差分' : '单端/共面单端'}阻抗必须在 ${min}~${max} Ω 范围内`);
 			const layer = number(`layer_${id}`), upperRef = number(`upper_${id}`), lowerRef = number(`lower_${id}`);
 			if (!layer || (!upperRef && !lowerRef)) throw new Error(`${target} Ω 组必须选择阻抗层和至少一个参考层`);
 			if (layer === upperRef || layer === lowerRef) throw new Error(`${target} Ω 组的阻抗层不能同时作为参考层`);
-			const gap = differential ? Math.min(100, Math.max(2.5, number(`gap_${id}`) || 5)) : 0;
-			const distance = coplanar ? Math.max(2.5, number(`dist_${id}`) || 8) : 0;
-			const width = number(`width_${id}`);
+			const gap = differential ? number(`gap_${id}`) : 0;
+			if (differential && (!Number.isFinite(gap) || gap < 2.5 || gap > 100)) throw new Error('S1 必须在 2.5～100 mil 内');
+			const distance = coplanar ? number(`dist_${id}`) : 0;
+			if (coplanar && (!Number.isFinite(distance) || distance < 2.5 || distance > 80)) throw new Error('D1 必须在 2.5～80 mil 内');
+			const enteredWidth = number(`width_${id}`);
+			if ($(`#width_${id}`).value !== '' && (!Number.isFinite(enteredWidth) || enteredWidth < 2.5 || enteredWidth > 100)) throw new Error('W1 必须为空或在 2.5～100 mil 内');
+			const width = enteredWidth || 0;
 			return { id, mode, differential, coplanar, target, nets: tr.dataset.nets.split('\u001f'), layer, upperRef, lowerRef, width, gap, distance };
 		});
 	}
@@ -152,160 +194,86 @@
 			const defaultMode = defaultLayer === 1 || defaultLayer === number('layers') ? (row.differential ? 'DiffEdgeCoupledCoatedMicrostrip1B' : 'CoatedMicrostrip1B') : (row.differential ? 'DiffOffsetStripline1B1A' : 'OffsetStripline1B1A');
 			const modeOptions = impedanceModes.map(item => `<option value="${item.value}"${item.value === defaultMode ? ' selected' : ''}>${item.label}</option>`).join('');
 			const refs = row.upperPreset || row.lowerPreset ? { upper: row.upperPreset || 0, lower: row.lowerPreset || 0 } : inferReferences(defaultLayer);
-			return `<tr data-group="${id}" data-differential="${row.differential ? 1 : 0}" data-nets="${row.nets.join('\u001f')}"><td><select id="mode_${id}">${modeOptions}</select></td><td><input type="number" id="target_${id}" value="${row.target}" step="1" min="${row.differential ? 50 : 20}" max="${max}"></td><td>${row.nets.length} 个网络</td><td><select id="layer_${id}">${layerOptions(defaultLayer)}</select></td><td><select id="upper_${id}">${layerOptions(refs.upper, true)}</select></td><td><select id="lower_${id}">${layerOptions(refs.lower, true)}</select></td><td><input type="number" id="width_${id}" value="${complement && row.differential ? 5.2 : ''}" step="0.1" min="2.5" max="80" ${complement && row.differential ? 'required' : 'placeholder="自动反算" disabled'}></td><td><input type="number" id="gap_${id}" value="${preset?.gap ?? 5}" step="0.1" min="2.5" max="100"></td><td><input type="number" id="dist_${id}" value="${preset?.distance ?? 8}" step="0.1" min="2.5"></td></tr>`;
-		}).join('') : '<tr><td colspan="9" class="empty">当前 PCB 未识别到差分或阻抗网络</td></tr>';
+			return `<tr data-group="${id}" data-differential="${row.differential ? 1 : 0}" data-nets="${row.nets.join('\u001f')}"><td><select id="mode_${id}">${modeOptions}</select></td><td><input type="number" id="target_${id}" value="${row.target}" step="1" min="${row.differential ? 50 : 20}" max="${max}"></td><td>${row.nets.length} 个网络</td><td><select id="layer_${id}">${layerOptions(defaultLayer)}</select></td><td><select id="upper_${id}">${layerOptions(refs.upper, true)}</select></td><td><select id="lower_${id}">${layerOptions(refs.lower, true)}</select></td><td><input type="number" id="width_${id}" value="${complement && (row.differential || row.coplanar) ? (row.coplanar && !row.differential ? 7 : 5.2) : ''}" step="0.1" min="2.5" max="100" placeholder="留空按 8 mil 起算"></td><td><input type="number" id="gap_${id}" value="${preset?.gap ?? 5}" step="0.1" min="2.5" max="100"></td><td><input type="number" id="dist_${id}" value="${preset?.distance ?? 8}" step="0.1" min="2.5"></td><td><button class="btn danger compact-btn" type="button" data-delete-impedance="${id}">删除</button></td></tr>`;
+		}).join('') : '<tr><td colspan="10" class="empty">当前 PCB 未识别到差分或阻抗网络</td></tr>';
 		for (const row of rows) {
 			const id = groupId(row), mode = body.querySelector(`#mode_${id}`), target = body.querySelector(`#target_${id}`), gap = body.querySelector(`#gap_${id}`), dist = body.querySelector(`#dist_${id}`), width = body.querySelector(`#width_${id}`);
 			const updateModeFields = () => { const info = impedanceMode(mode.value), layerSel = $(`#layer_${id}`), upperSel = $(`#upper_${id}`), lowerSel = $(`#lower_${id}`), refMode = selectedReferenceMode(); gap.disabled = !info.differential; dist.disabled = !info.coplanar; gap.closest('td').classList.toggle('field-disabled', !info.differential); dist.closest('td').classList.toggle('field-disabled', !info.coplanar); target.min = info.differential ? '50' : '20'; target.max = info.differential ? '150' : '90'; if (info.layer === 'outer' && ![1, number('layers')].includes(number(`layer_${id}`))) layerSel.value = '1'; if (info.layer === 'inner' && [1, number('layers')].includes(number(`layer_${id}`))) layerSel.value = String(Math.min(2, number('layers') - 1)); if (refMode !== 'custom') { const syncRefs = inferReferences(Number(layerSel.value) || firstSignalLayer()); upperSel.value = syncRefs.upper || '0'; lowerSel.value = syncRefs.lower || '0'; } };
-			const complementAdjust = (field, counterpart, delta, factor = 1) => { if (!$('#widthGapComplement').checked || field.disabled || !counterpart || counterpart.disabled) return; const value = Math.max(2.5, Number(counterpart.value) - delta * factor); counterpart.value = String(Math.round(value * 100) / 100); };
+			const complementAdjust = (field, counterpart, delta, factor = 1) => { if (!$('#widthGapComplement').checked || field.disabled || !counterpart || counterpart.disabled) return; const value = Number(counterpart.value) - delta * factor; counterpart.value = String(Math.round(value * 100) / 100); };
 			const bindComplement = (field, updates) => { field.addEventListener('focus', () => { field.dataset.complementValue = field.value; }); field.addEventListener('input', () => { const previous = Number(field.dataset.complementValue ?? field.value), current = Number(field.value); if (!Number.isFinite(previous) || !Number.isFinite(current)) return; const delta = current - previous; for (const [counterpart, factor] of updates) complementAdjust(field, counterpart, delta, factor); field.dataset.complementValue = field.value; }); };
 			mode.addEventListener('change', updateModeFields); $(`#layer_${id}`).addEventListener('change', updateModeFields); updateModeFields();
 			bindComplement(width, [[gap, 1], [dist, 0.5]]);
 			bindComplement(gap, [[width, 1], [dist, 0.5]]);
 			bindComplement(dist, [[width, 2], [gap, 2]]);
-			if (gap) gap.addEventListener('change', () => { gap.value = String(Math.max(2.5, Number(gap.value) || 6)); });
-			if (dist) dist.addEventListener('change', () => { dist.value = String(Math.max(2.5, Number(dist.value) || 8)); });
 		}
+		body.querySelectorAll('[data-delete-impedance]').forEach(button => button.addEventListener('click', () => deleteImpedanceGroup(button.closest('tr'))));
+	}
+	function deleteImpedanceGroup(row) {
+		if (!row) return;
+		const nets = String(row.dataset.nets || '').split('\u001f').filter(Boolean);
+		for (const net of nets) {
+			const item = state.classified.find(entry => entry.net === net);
+			if (!item) continue;
+			item.category = 'signal';
+			delete item.targetOhms; delete item.mate; delete item.polarity; delete item.pairName; delete item.widthMil; delete item.profileName;
+			item.warnings = [];
+		}
+		state.plan = null; state.selected = null; state.evaluations = []; state.calculationSignature = '';
+		render(); renderImpedanceInputs();
+		$('#planMeta').textContent = '阻抗配置已删除，请重新计算';
+		$('#planCards').innerHTML = '<p class="empty small">阻抗配置已变化，请重新计算设计规则</p>';
+		$('#ruleMetric').textContent = '0'; $('#netMetric').textContent = '0'; $('#pairMetric').textContent = '0'; $('#warningMetric').textContent = '0';
+		$('#ruleCards').innerHTML = '<p class="empty small">暂无规则计划</p>';
+		$('#applyBtn').disabled = true;
+		toast(`已删除阻抗配置，${nets.length} 个网络恢复为普通信号`);
 	}
 	function templateToStack(template) {
-		const copper = [], ds = [], ers = [], labels = []; let d = 0, erd = 0, names = [];
-		const flush = () => { if (!copper.length || d <= 0) return; ds.push(d); ers.push(erd / d || number('er')); labels.push(Array.from(new Set(names)).join(' + ') || '介质'); d = 0; erd = 0; names = []; };
-		for (const material of template.materials) {
-			if (material.type === 1) { flush(); copper.push(material.top || material.bottom || template.outerOz * .035); }
-			else if (material.type === 2 || material.type === 3) { if (copper.length) flush(); copper.push(material.top || template.innerOz * .035); ds.push(material.d); ers.push(material.er || number('er')); labels.push(material.name || material.material || '芯板'); copper.push(material.bottom || template.innerOz * .035); }
-			else if (material.d > 0) { d += material.d; erd += material.d * (material.er || number('er')); names.push(material.name || material.material || 'PP'); }
-		}
-		flush(); while (copper.length > template.layers) copper.splice(Math.floor(copper.length / 2), 1);
-		while (ds.length > template.layers - 1) { const i = Math.floor(ds.length / 2) - 1, total = ds[i] + ds[i + 1]; ers[i] = (ers[i] * ds[i] + ers[i + 1] * ds[i + 1]) / total; ds[i] = total; labels[i] += ` + ${labels[i + 1]}`; ds.splice(i + 1, 1); ers.splice(i + 1, 1); labels.splice(i + 1, 1); }
-		return copper.length === template.layers && ds.length === template.layers - 1 ? { template, copper, gaps: ds, ers, labels } : null;
-	}
-	function jlcGeometryFromStack(row, geometry) {
-		const outer = geometry.outerLayer;
-		// JLC copper-trace-width config: traceWidthDelta depends on copper thickness and layer type
-		const oz = outer ? number('outerOz') : number('innerOz');
-		const w2Delta = oz <= 0.5 ? 0.5 : oz <= 1 ? (outer ? 0.5 : 0.8) : oz <= 1.5 ? (outer ? 1.0 : 1.0) : (outer ? 1.2 : 1.2);
-		const params = {
-			H1: geometry.height / 0.0254,
-			Er1: geometry.er,
-			W1: row.width,
-			W2: Math.max(2, row.width - w2Delta),
-			T1: geometry.copper / 0.0254,
-		};
-		if (!outer) {
-			params.H2 = (geometry.height2 ?? geometry.height) / 0.0254;
-			params.Er2 = geometry.er2 ?? geometry.er;
-		}
-		if (row.differential)
-			params.S1 = row.gap;
-		if (row.coplanar)
-			params.D1 = row.distance;
-		if (outer) {
-			params.C1 = 1.2;
-			params.C2 = 0.6;
-			params.CEr = 3.8;
-			if (row.differential)
-				params.C3 = 1.2;
-		}
-		return params;
-	}
-	function solveW1(row, geometry) {
-		let low = 2.5, high = 80;
-		for (let i = 0; i < 60; i++) {
-			const mid = (low + high) / 2;
-			const z = evaluateJlcImpedance({ ...row, width: mid }, geometry);
-			if (z < row.target) high = mid;
-			else low = mid;
-		}
-		const width = Math.round(((low + high) / 2) * 100) / 100;
-		if (width < 2.5 || width > 80) throw new Error(`${row.target} Ω 组在当前叠层下无法在 2.5~80 mil 范围内反算 W1`);
-		return width;
-	}
-	function evaluateJlcImpedance(row, geometry) {
-		const model = (globalThis.__ADR_JLC_MODELS__ || {})[row.mode];
-		if (!model)
-			throw new Error(`阻抗模式 ${row.mode} 缺少 SI9000 逼近模型`);
-		const params = jlcGeometryFromStack(row, geometry);
-		// Step 1: log-scale and divide by std (our custom scaling)
-		const raw = model.f.map((field, index) => Math.log(Math.max(1e-6, Number(params[field] ?? 1))) / model.s[index]);
-		// Step 2: apply normalization (mean shift + max-norm scaling)
-		const point = raw.map((v, i) => (v - model.h[i]) / model.q[0]);
-		// model.c stores ALREADY-normalized centers
-		let value = 0;
-		for (let r = 0; r < model.c.length; r++) {
-			let sumSq = 0;
-			for (let c = 0; c < point.length; c++)
-				sumSq += (point[c] - model.c[r][c]) ** 2;
-			value += model.a[r] * Math.pow(sumSq, 1.5);
-		}
-		value += model.p[0];
-		for (let i = 0; i < point.length; i++)
-			value += model.p[i + 1] * point[i];
-		return Math.exp(value);
-	}
-
-	function geometryFor(stack, row) {
-		const candidates = [];
-		if (row.upperRef && row.upperRef < row.layer) candidates.push({ gap: row.layer - row.upperRef, side: '上' });
-		if (row.lowerRef && row.lowerRef > row.layer) candidates.push({ gap: row.lowerRef - row.layer, side: '下' });
-		if (!candidates.length) throw new Error(`${row.target} Ω 组的参考层必须位于阻抗层上方或下方`);
-		const nearest = candidates.sort((a, b) => a.gap - b.gap)[0];
-		let height = 0, weightedEr = 0;
-		const start = Math.min(row.layer, nearest.side === '上' ? row.upperRef : row.lowerRef) - 1;
-		const end = Math.max(row.layer, nearest.side === '上' ? row.upperRef : row.lowerRef) - 1;
-		for (let index = start; index < end; index++) { const gap = stack.gaps[index]; height += gap; weightedEr += gap * stack.ers[index]; }
-		if (!(height > 0)) throw new Error(`${row.target} Ω 组无法从叠层解析 L${row.layer} 到参考层的介质厚度`);
-		const info = impedanceMode(row.mode), solverMode = info.pattern === 0 ? 'single' : info.pattern === 1 ? 'differential' : info.pattern === 2 ? 'coplanar-single' : 'coplanar-differential';
-		const outer = row.layer === 1 || row.layer === stack.copper.length;
-		let height2 = 0, er2 = 0;
-		if (!outer && row.upperRef && row.lowerRef) {
-			const start2 = Math.min(row.layer, row.upperRef) - 1, end2 = Math.max(row.layer, row.upperRef) - 1;
-			for (let index = start2; index < end2; index++) { height2 += stack.gaps[index]; er2 += stack.gaps[index] * stack.ers[index]; }
-			if (height2 > 0) er2 /= height2;
-		}
-		return { height, er: weightedEr / height, height2, er2: er2 || weightedEr / height, copper: stack.copper[row.layer - 1], solverMode, outerLayer: outer, reference: `${nearest.side}参考 L${nearest.side === '上' ? row.upperRef : row.lowerRef}` };
+		try { return impedanceCore.parseStack(template); } catch { return null; }
 	}
 	function constraints() { return readImpedanceRows(); }
+	function calculationSignature() { return JSON.stringify({ rows: readImpedanceRows(), board: ['boardType','layers','thickness','innerOz','outerOz'].map(number), complement: $('#widthGapComplement').checked }); }
 	function evaluateStackups() {
+		state.plan = null; state.selected = null; state.calculationSignature = ''; $('#applyBtn').disabled = true;
 		const constraintsRows = constraints();
-		const templates = state.stackups.filter(item => item.boardType === number('boardType') && item.layers === number('layers') && Math.abs(item.thickness - number('thickness')) < .001 && (item.layers === 2 || Math.abs(item.innerOz - number('innerOz')) < .001) && Math.abs(item.outerOz - number('outerOz')) < .001 && item.recommended === 1 && !invalidNames.test(item.name || ''));
+		const templates = state.stackups.filter(item => item.boardType === number('boardType') && item.layers === number('layers') && Math.abs(item.thickness - number('thickness')) < .001 && (item.layers === 2 || Math.abs(item.innerOz - number('innerOz')) < .001) && Math.abs(item.outerOz - number('outerOz')) < .001 && impedanceCore.isProductionTemplate(item));
+		if (!templates.length) throw new Error('官网快照中没有匹配且结构有效的可选叠层，请检查板厚、层数和铜厚');
 		const complement = $('#widthGapComplement')?.checked ?? true;
-		state.evaluations = templates.map(templateToStack).filter(Boolean).map((stack) => {
-			const results = constraintsRows.map((row) => {
-				const geometry = geometryFor(stack, row);
-				const solvedWidth = solveW1(row, geometry);
-				if (!complement || !row.differential || !(row.width >= 2.5)) {
-					const calculated = evaluateJlcImpedance({ ...row, width: solvedWidth }, geometry);
-					return { ...row, ...geometry, width: solvedWidth, calculated, errorPercent: (calculated - row.target) / row.target * 100, widthSource: '默认反算' };
-				}
-				// JLC treats entered W1/S1/D1 as the customer's baseline. Each stackup keeps
-				// its own solved W1, then complements S1/D1 by that stackup's W1 delta.
-				const widthDelta = solvedWidth - row.width;
-				const complemented = {
-					...row,
-					width: solvedWidth,
-					gap: Math.max(2.5, row.gap - widthDelta),
-					distance: row.coplanar ? Math.max(2.5, row.distance - widthDelta / 2) : row.distance,
-				};
-				const calculated = evaluateJlcImpedance(complemented, geometry);
-				return { ...complemented, ...geometry, calculated, errorPercent: (calculated - row.target) / row.target * 100, originalWidth: row.width, widthSource: '叠层互补' };
+		const evaluations = [];
+		for (const template of templates) {
+			let stack;
+			try { stack = impedanceCore.parseStack(template); }
+			catch (error) { evaluations.push({ stack: { template }, results: [], verified: false, failed: true, reason: error.message, score: Infinity }); continue; }
+			const results = constraintsRows.map(row => {
+				try { return impedanceCore.calculateRow(stack, row, complement, calibration, globalThis.__ADR_JLC_MODELS__ || {}); }
+				catch (error) { return { ...row, status: 'no-solution', verified: false, reason: error.message }; }
 			});
-			const score = results.reduce((sum, row) => sum + Math.abs(row.errorPercent), 0) + (stack.template.charge ? 3 : 0);
-			return { stack, results, score };
-		}).sort((a, b) => a.score - b.score || a.stack.template.code.localeCompare(b.stack.template.code));
-		const select = $('#stackTemplate'), previous = select.value; select.innerHTML = state.evaluations.length ? state.evaluations.map(item => `<option value="${item.stack.template.id}">${item.stack.template.code} · ${item.stack.template.name}</option>`).join('') : '<option value="">无精确匹配</option>'; if (state.evaluations.some(item => item.stack.template.id === previous)) select.value = previous;
-		select.disabled = $('#stackMode').value !== 'manual'; state.selected = $('#stackMode').value === 'manual' ? state.evaluations.find(item => item.stack.template.id === select.value) : state.evaluations[0]; renderStackups();
+			const failed = results.some(row => row.status === 'no-solution');
+			const verified = !failed && results.every(row => row.verified);
+			const score = failed ? Infinity : results.reduce((sum,row) => sum + Math.abs(row.errorPercent),0) + (template.charge ? 3 : 0);
+			evaluations.push({ stack, results, verified, failed, score });
+		}
+		state.evaluations = evaluations.sort((a,b) => Number(b.verified)-Number(a.verified) || a.score-b.score || a.stack.template.code.localeCompare(b.stack.template.code));
+		const select = $('#stackTemplate'), previous = select.value;
+		select.innerHTML = state.evaluations.map(item => `<option value="${item.stack.template.id}">${item.stack.template.code} · ${item.verified ? '已验证' : item.failed ? '无解/不支持' : '未验证'}</option>`).join('');
+		if (state.evaluations.some(item => item.stack.template.id === previous)) select.value = previous;
+		select.disabled = $('#stackMode').value !== 'manual';
+		state.selected = $('#stackMode').value === 'manual' ? state.evaluations.find(item => item.stack.template.id === select.value) : state.evaluations.find(item => item.verified);
+		if (state.selected) select.value = state.selected.stack.template.id;
+		state.calculationSignature = calculationSignature();
+		renderStackups();
 	}
+	const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 	function renderStackups() {
 		const chosen = state.selected;
-		if (!chosen) { $('#stackTitle').textContent = '无精确官方叠层'; $('#stackMeta').textContent = '请调整板参数'; $('#planMeta').textContent = '无候选方案'; $('#planCards').innerHTML = '<p class="empty small">没有满足板参数的叠层</p>'; return; }
-		const t = chosen.stack.template; $('#stackTitle').textContent = `${$('#stackMode').value === 'auto' ? '最佳推荐' : '用户指定'} · ${t.code}`; $('#stackMeta').textContent = `${t.layers} 层 · ${t.thickness} mm · ${chosen.stack.labels[0]} · Dk ${chosen.stack.ers[0].toFixed(2)}`;
-		$('#planMeta').textContent = `${state.evaluations.length} 个候选 · 已选 ${t.code}`;
-		$('#planCards').innerHTML = state.evaluations.map(item => `<article class="stack-result${item === chosen ? ' selected' : ''}"><h4>${item.stack.template.code} · ${item.stack.template.name}${item === chosen ? '（已选择）' : ''}</h4><p>${item.stack.template.layers} 层 · ${item.stack.template.charge ? '可能收费' : '标准方案'}</p><div class="result-table-wrap"><table class="stack-result-table"><thead><tr><th>模式</th><th>计算 Ω</th><th>阻抗层</th><th>参考层</th><th>W1 / mil</th><th>S1 / mil</th><th>D1 / mil</th></tr></thead><tbody>${item.results.map(row => `<tr><td>${impedanceMode(row.mode).label}</td><td>${row.calculated.toFixed(2)}</td><td>L${row.layer}</td><td>${row.reference}</td><td>${row.width.toFixed(2)}${row.widthSource ? ` <span class="muted">(${row.widthSource}${row.originalWidth ? ` ← ${row.originalWidth}` : ''})</span>` : ''}</td><td>${row.differential ? row.gap.toFixed(2) : '—'}</td><td>${row.coplanar ? row.distance.toFixed(2) : '—'}</td></tr>`).join('')}</tbody></table></div>${item === chosen ? '' : `<button data-stack="${item.stack.template.id}">选择此方案</button>`}</article>`).join('');
-		document.querySelectorAll('[data-stack]').forEach(button => button.addEventListener('click', () => { $('#stackMode').value = 'manual'; $('#stackTemplate').disabled = false; $('#stackTemplate').value = button.dataset.stack; state.selected = state.evaluations.find(item => item.stack.template.id === button.dataset.stack); makePlan(); renderStackups(); }));
+		$('#stackTitle').textContent = chosen ? `${chosen.verified ? '已验证' : chosen.failed ? '无解/不支持' : '未验证·仅供估算'} · ${chosen.stack.template.code}` : '没有通过验证的自动推荐，请手动查看估算';
+		$('#stackMeta').textContent = `模型 ${calibration.version} · 工艺 ${impedanceCore.PROCESS.version} · 运行时完全离线`;
+		$('#planMeta').textContent = `${state.evaluations.length} 个候选 · ${state.evaluations.filter(item => item.verified).length} 个已验证`;
+		$('#planCards').innerHTML = state.evaluations.map(item => `<article class="stack-result${item === chosen ? ' selected' : ''}"><h4>${escapeHtml(item.stack.template.code)} · ${item.verified ? '已验证' : item.failed ? '无解/不支持' : '未验证·仅供估算'}</h4><p>${escapeHtml(item.reason || '')}</p><div class="result-table-wrap"><table class="stack-result-table"><thead><tr><th>模式</th><th>计算 Ω</th><th>信号层 / 参考层</th><th>W1 / mil</th><th>S1 / mil</th><th>D1 / mil</th><th>验证状态</th></tr></thead><tbody>${item.results.map(row => `<tr><td>${escapeHtml(impedanceMode(row.mode).label)}</td><td>${(item.verified || item === chosen) && Number.isFinite(row.calculated) ? row.calculated.toFixed(2) : '—'}</td><td>L${row.layer} / ${escapeHtml(row.reference || '')}</td><td>${row.status === 'no-solution' || (!item.verified && item !== chosen) ? '—' : row.width.toFixed(2)}</td><td>${row.gap && (item.verified || item === chosen) ? row.gap.toFixed(2) : '—'}</td><td>${row.distance && (item.verified || item === chosen) ? row.distance.toFixed(2) : '—'}</td><td>${escapeHtml(row.reason)}<br><small>${escapeHtml(row.calibrationRange || "")}</small></td></tr>`).join('')}</tbody></table></div>${item === chosen || item.failed ? '' : `<button data-stack="${item.stack.template.id}">${item.verified ? '选择此方案' : '查看估算方案'}</button>`}</article>`).join('');
+		document.querySelectorAll('[data-stack]').forEach(button => button.addEventListener('click', () => { $('#stackMode').value = 'manual'; $('#stackTemplate').disabled = false; $('#stackTemplate').value = button.dataset.stack; state.selected = state.evaluations.find(item => item.stack.template.id === button.dataset.stack); makePlan(); renderStackups(); $('#applyBtn').disabled = !state.plan || !state.selected?.verified; }));
 	}
 
 	function makePlan() {
-		if (!state.selected) { state.plan = null; render(); return; }
+		if (!state.selected || state.selected.failed) { state.plan = null; render(); return; }
 		const resultsByTarget = new Map();
 		for (const row of state.selected.results) {
 			const key = `${row.differential ? 'd' : 's'}_${row.target}`;
@@ -341,18 +309,14 @@
 		// One net class per generated impedance rule group, mirroring PWR_Class:
 		// the class name derives from the generated profile name so any target
 		// impedance / geometry combination gets its own class automatically.
-		const classPalette = [
-			{ r: 64, g: 158, b: 255, alpha: 1 },
-			{ r: 103, g: 194, b: 58, alpha: 1 },
-			{ r: 230, g: 162, b: 60, alpha: 1 },
-			{ r: 245, g: 108, b: 108, alpha: 1 },
-			{ r: 144, g: 147, b: 153, alpha: 1 },
-		];
-		const impedanceClasses = [...groups.values()]
+		const ruleGroups = [...groups.values()];
+		const paletteOffset = colorSeed(ruleGroups.map(rule => rule.profileName).join('|')) % highContrastColors.length;
+		ruleGroups.forEach((rule, index) => { rule.color = ruleColor(index, paletteOffset); });
+		const impedanceClasses = ruleGroups
 			.filter(rule => rule.category === 'differential' || rule.category === 'impedance')
-			.map((rule, index) => ({
+			.map(rule => ({
 				name: `${rule.profileName}_CLASS`,
-				color: classPalette[index % classPalette.length],
+				color: rule.color,
 				profileName: rule.profileName,
 				nets: rule.nets,
 			}));
@@ -368,10 +332,10 @@
 			const innerDiameter = Math.max(0.2, solveViaDiameter(current, tempRise, copperUm));
 			viaProfiles.push({ profileName: 'PWR', className: 'PWR_Class', ruleProfileName: 'PWR', nets: power.nets, outerDiameter: Math.max(innerDiameter + 0.3, innerDiameter * 1.75), innerDiameter });
 		}
-		state.plan = { rules: [...groups.values()], differentialPairs: pairs, powerClass: power ? { name: 'PWR_Class', color: { r: 153, g: 153, b: 153, alpha: 1 }, nets: power.nets } : null, impedanceClasses, viaProfiles, warnings: state.classified.flatMap(item => item.warnings.map(warning => `${item.net}: ${warning}`)) };
+		state.plan = { rules: ruleGroups, differentialPairs: pairs, powerClass: power ? { name: 'PWR_Class', color: power.color, nets: power.nets } : null, impedanceClasses, viaProfiles, colorEnabled: $('#autoRuleColors').checked, warnings: state.classified.flatMap(item => item.warnings.map(warning => `${item.net}: ${warning}`)) };
 		render();
 	}
-	async function scan() { if (!api) throw new Error('IFrame 未获得 EasyEDA API，请从扩展菜单打开'); status('正在读取 PCB', '读取网络与现有设计规则'); setProgress('正在读取 PCB', 10); const [configuration, netRules, pairs, netClasses, nets] = await Promise.all([api.pcb_Drc.getCurrentRuleConfiguration(), api.pcb_Drc.getNetRules(), api.pcb_Drc.getAllDifferentialPairs(), api.pcb_Drc.getAllNetClasses(), api.pcb_Net.getAllNetsName()]); setProgress('正在识别网络', 45); state.netClasses = netClasses; state.snapshot = { configuration, netRules, differentialPairs: pairs, netClasses, nets, timestamp: new Date().toISOString() }; state.classified = classify(nets); state.aiInputs = []; if ($('#aiEnabled').checked) { setProgress('AI 正在识别网络', 60); try { const ai = await aiClassify(nets, { layers: number('layers'), thickness: number('thickness') }); state.classified = state.classified.map(item => { const aiItem = ai.map[item.net]; if (!aiItem) return item; return { ...item, ...aiItem, net: item.net, pairName: item.pairName || (aiItem.category === 'differential' ? `${item.net.slice(0, -2)}_D` : undefined), warnings: [] }; }); state.aiInputs = ai.inputs; toast('AI 识别完成'); } catch (error) { toast(`AI 识别失败，使用内置规则：${error.message}`, true); } } state.plan = null; state.selected = null; state.evaluations = []; render(); renderImpedanceInputs(); $('#planMeta').textContent = '计算后选择方案'; $('#planCards').innerHTML = '<p class="empty small">填写阻抗输入后点击“计算设计规则”</p>'; $('#calculateBtn').disabled = false; $('#previewBtn').disabled = true; $('#applyBtn').disabled = true; status('扫描完成', `${nets.length} 个网络 · 请填写阻抗输入后计算`); setProgress('扫描完成', 100); }
+	async function scan() { if (!api) throw new Error('IFrame 未获得 EasyEDA API，请从扩展菜单打开'); status('正在读取 PCB', '读取网络与现有设计规则'); setProgress('正在读取 PCB', 10); const [configuration, netRules, pairs, netClasses, nets] = await Promise.all([api.pcb_Drc.getCurrentRuleConfiguration(), api.pcb_Drc.getNetRules(), api.pcb_Drc.getAllDifferentialPairs(), api.pcb_Drc.getAllNetClasses(), api.pcb_Net.getAllNetsName()]); setProgress('正在识别网络', 45); state.netClasses = netClasses; state.snapshot = { configuration, netRules, differentialPairs: pairs, netClasses, nets, timestamp: new Date().toISOString() }; state.classified = classify(nets); state.aiInputs = []; if ($('#aiEnabled').checked) { setProgress('AI 正在识别网络', 60); try { const ai = await aiClassify(nets, { layers: number('layers'), thickness: number('thickness') }); state.classified = state.classified.map(item => { const aiItem = ai.map[item.net]; if (!aiItem) return item; return { ...item, ...aiItem, net: item.net, pairName: item.pairName || (aiItem.category === 'differential' ? `${item.net.slice(0, -2)}_D` : undefined), warnings: [] }; }); state.aiInputs = ai.inputs; toast('AI 识别完成'); } catch (error) { toast(`AI 识别失败，使用内置规则：${error.message}`, true); } } state.plan = null; state.selected = null; state.evaluations = []; render(); renderImpedanceInputs(); $('#planMeta').textContent = '计算后选择方案'; $('#planCards').innerHTML = '<p class="empty small">填写阻抗输入后点击“计算设计规则”</p>'; $('#calculateBtn').disabled = false; $('#applyBtn').disabled = true; status('扫描完成', `${nets.length} 个网络 · 请填写阻抗输入后计算`); setProgress('扫描完成', 100); }
 	function pcbLayerIdForSeq(layer) {
 		const total = Math.max(2, number('layers'));
 		const seq = Number(layer);
@@ -434,12 +398,18 @@
 	}
 	async function apply() {
 		if (!state.snapshot || !state.plan) return;
+		if (!state.selected?.verified) throw new Error('未验证的阻抗估算仅供预览，不能生成设计规则');
+		if (state.calculationSignature !== calculationSignature()) throw new Error('计算参数已变化，请重新计算后生成');
 		$('#applyBtn').disabled = true;
-		status('正在应用', '读取当前规则配置'); setProgress('正在备份现有规则', 15);
-		const freshConfig = await api.pcb_Drc.getCurrentRuleConfiguration();
+		status('正在生成', '读取当前规则作为新配置模板'); setProgress('正在准备新配置', 15);
+		const [freshConfig, projectInfo, boardInfo] = await Promise.all([
+			api.pcb_Drc.getCurrentRuleConfiguration(),
+			api.dmt_Project.getCurrentProjectInfo(),
+			api.dmt_Board.getCurrentBoardInfo(),
+		]);
+		if (!projectInfo || !boardInfo) throw new Error('无法读取当前工程或板子名称，设计规则未生成');
+		const configurationName = projectBoardConfigurationName(projectInfo, boardInfo);
 		adrLog('apply.start', { planRules: state.plan.rules.length, planNets: state.plan.rules.reduce((n, rule) => n + rule.nets.length, 0), configKeys: Object.keys(freshConfig || {}), spacingKeys: Object.keys(freshConfig?.config?.Spacing || {}), trackKeys: Object.keys(freshConfig?.config?.Physics?.Track || {}), diffKeys: Object.keys(freshConfig?.config?.Physics?.['Differential Pair'] || {}) });
-		state.snapshot.configuration = freshConfig;
-		await api.sys_Storage.setExtensionUserConfig('adr:last-backup', JSON.stringify(state.snapshot));
 		const cfg = structuredClone(freshConfig);
 		if (!cfg?.config?.Spacing?.['Safe Spacing'] || !cfg?.config?.Physics?.Track || !cfg?.config?.Physics?.['Differential Pair']) throw new Error('规则配置结构不完整，拒绝写入');
 		for (const section of Object.values(cfg.config.Spacing)) if (!section || typeof section !== 'object') throw new Error('规则配置的 Spacing 结构无效');
@@ -478,9 +448,7 @@
 			else row.Track = item.profileName;
 		}
 		try {
-			// overwriteCurrentRuleConfiguration crashes EasyEDA's ruler manager for custom profiles.
-			// Save a complete named configuration instead; activation is intentionally left to EasyEDA.
-			let configurationName = `ADR_${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}_${Math.floor(Math.random() * 1000)}`;
+			// Save a complete named configuration without activating it.
 			const serializedConfig = JSON.stringify(cfg.config);
 			const diffShapes = Object.fromEntries(Object.entries(cfg.config.Physics?.['Differential Pair'] || {}).map(([key, value]) => [key, { editName: value?.editName, unit: value?.unit, isSetDefault: value?.isSetDefault, formKeys: Object.keys(value?.form || {}), widthData: value?.form?.strokeWidthTables?.data, spacingData: value?.form?.diffPairSpacingTables?.data, tolerance: value?.form?.differentailPairLenTolerMax }]));
 			adrLog('config.ready', { bytes: serializedConfig?.length, hasNaN: serializedConfig?.includes('NaN'), hasUndefined: serializedConfig?.includes('undefined'), spacingKeys: Object.keys(cfg.config.Spacing || {}), trackKeys: Object.keys(cfg.config.Physics?.Track || {}), diffKeys: Object.keys(cfg.config.Physics?.['Differential Pair'] || {}), trackShapes: Object.fromEntries(Object.entries(cfg.config.Physics?.Track || {}).map(([key, value]) => [key, { editName: value?.editName, unit: value?.unit, isSetDefault: value?.isSetDefault, formKeys: Object.keys(value?.form || {}), data: value?.form?.data }])), diffShapes });
@@ -488,40 +456,18 @@
 			if (!serializedConfig || serializedConfig.includes('NaN') || serializedConfig.includes('undefined')) throw new Error('设计规则配置包含无效值');
 			if (typeof api.pcb_Drc.saveRuleConfiguration !== 'function') throw new Error('当前 EasyEDA 不支持保存设计规则配置 API');
 			adrLog('save.begin', { configurationName, method: 'api.pcb_Drc.saveRuleConfiguration' });
-			let saved = await api.pcb_Drc.saveRuleConfiguration(cfg.config, configurationName, true);
+			const saved = await api.pcb_Drc.saveRuleConfiguration(cfg.config, configurationName, true);
 			adrLog('save.result', { configurationName, saved });
-			if (!saved) {
-				const retryName = `${configurationName}_${Date.now()}`;
-				saved = await api.pcb_Drc.saveRuleConfiguration(cfg.config, retryName, true);
-				if (saved) configurationName = retryName;
-				adrLog('save.retry', { configurationName: retryName, saved });
-			}
-			if (!saved) {
-				const diagnosticBase = structuredClone(freshConfig.config);
-				const diagnostic = async (label, configuration) => {
-					try {
-						const name = `ADR_DIAG_${label}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-						const result = await api.pcb_Drc.saveRuleConfiguration(configuration, name, true);
-						adrLog('save.diagnostic', { label, result, trackKeys: Object.keys(configuration.Physics?.Track || {}), diffKeys: Object.keys(configuration.Physics?.['Differential Pair'] || {}) });
-						return result;
-					} catch (error) {
-						adrError(`save.diagnostic.${label}`, { message: error?.message, stack: error?.stack });
-						return `error:${error?.message || error}`;
-					}
-				};
-				const diagBase = structuredClone(diagnosticBase);
-				const baseResult = await diagnostic('base', diagBase);
-				const diagPwr = structuredClone(diagnosticBase); diagPwr.Physics.Track.PWR = cfg.config.Physics.Track.PWR; await diagnostic('pwr', diagPwr);
-				const generatedDiffs = Object.entries(cfg.config.Physics['Differential Pair']).filter(([key]) => key.startsWith('ADR_'));
-				const diag100 = structuredClone(diagnosticBase); if (generatedDiffs[0]) diag100.Physics['Differential Pair'][generatedDiffs[0][0]] = generatedDiffs[0][1]; const diff100Result = await diagnostic('diff1', diag100);
-				const diag90 = structuredClone(diagnosticBase); if (generatedDiffs[1]) diag90.Physics['Differential Pair'][generatedDiffs[1][0]] = generatedDiffs[1][1]; const diff90Result = await diagnostic('diff2', diag90);
-				const diagDiff = structuredClone(diagnosticBase); for (const [key, value] of generatedDiffs) diagDiff.Physics['Differential Pair'][key] = value; const diffResult = await diagnostic('diff', diagDiff);
-				const diagBoth = structuredClone(diagDiff); diagBoth.Physics.Track.PWR = cfg.config.Physics.Track.PWR; const bothResult = await diagnostic('both', diagBoth);
-				throw new Error(`设计规则配置保存失败（Track ${Object.keys(cfg.config.Physics.Track || {}).length}、差分 ${Object.keys(cfg.config.Physics['Differential Pair'] || {}).length}；单条差分=${diff100Result}/${diff90Result}，两条=${diffResult}，全部=${bothResult}）`);
-			}
+			if (!saved) throw new Error(`设计规则 ${configurationName} 保存失败`);
 			const savedConfiguration = await api.pcb_Drc.getRuleConfiguration(configurationName);
 			adrLog('save.readback', { configurationName, hasConfig: !!savedConfiguration?.config, spacingKeys: Object.keys(savedConfiguration?.config?.Spacing || {}), trackKeys: Object.keys(savedConfiguration?.config?.Physics?.Track || {}), diffKeys: Object.keys(savedConfiguration?.config?.Physics?.['Differential Pair'] || {}) });
 			if (!savedConfiguration?.config?.Spacing?.['Safe Spacing']) throw new Error(`设计规则 ${configurationName} 回读失败`);
+			// A generated configuration is deliberately not activated here. Activating it, or
+			// writing pairs/classes/net rules afterwards, would mutate the rules currently in use.
+			status('生成成功', `已生成 ${configurationName}；当前使用的设计规则未更改`);
+			setProgress('生成完成', 100);
+			toast(`设计规则已生成：${configurationName}`);
+			return;
 			// Saving a named configuration does not activate it. Activate the complete config so
 			// the PWR Track profile is resolvable by the active net-class rule.
 			adrLog('activate.begin', { configurationName });
@@ -586,42 +532,18 @@
 			// (the API silently drops the DIFFER_ENTAIL binding). The verified workaround is to
 			// patch the RULE_SELECTOR ruleKeyValue.DIFFER_ENTAIL entry in the raw document
 			// source, exactly like the EasyEDA UI does.
-			const bindDiffProfileViaDocumentSource = async (profileName, netNames) => {
-				const source = await api.sys_FileManager.getDocumentSource();
-				let text = String(source);
-				const changes = [];
-				for (const netName of netNames) {
-					let cursor = 0;
-					for (;;) {
-						const at = text.indexOf(netName, cursor);
-						if (at < 0) break;
-						cursor = at + 1;
-						// Only RULE_SELECTOR blocks carry per-net rule bindings.
-						if (!text.slice(Math.max(0, at - 400), at).includes('RULE_SELECTOR')) continue;
-						const after = text.slice(at);
-						const kvAt = after.indexOf('ruleKeyValue');
-						if (kvAt < 0) continue;
-						const objStart = after.indexOf('{', kvAt);
-						const objEnd = after.indexOf('}', objStart);
-						if (objStart < 0 || objEnd < 0) continue;
-						const inner = after.slice(objStart + 1, objEnd);
-						let next;
-						if (inner.includes('"DIFFER_ENTAIL"')) next = inner.replace(/"DIFFER_ENTAIL"\s*:\s*"[^"]*"/, `"DIFFER_ENTAIL":"${profileName}"`);
-						else next = `${inner},"DIFFER_ENTAIL":"${profileName}"`;
-						if (next === inner) continue;
-						text = text.slice(0, at) + after.slice(0, objStart + 1) + next + after.slice(objEnd);
-						changes.push({ net: netName, oldInner: inner, newInner: next });
-					}
-				}
-				if (!changes.length) throw new Error(`差分规则 ${profileName} 未找到可写入的 RULE_SELECTOR`);
-				adrLog('differentialRules.docSource', { profileName, changes });
-				if (!await api.sys_FileManager.setDocumentSource(text)) throw new Error(`差分规则 ${profileName} 文档源码写入失败`);
-			};
+			const sourceBindings = [];
 			for (const pair of state.plan.differentialPairs) {
 				const rule = state.plan.rules.find(item => item.category === 'differential' && (item.nets.includes(pair.positiveNet) || item.nets.includes(pair.negativeNet)));
 				if (!rule) throw new Error(`差分对 ${pair.name} 没有匹配的差分规则`);
-				await bindDiffProfileViaDocumentSource(rule.profileName, [pair.positiveNet, pair.negativeNet]);
+				sourceBindings.push({ profileName: rule.profileName, netNames: [pair.positiveNet, pair.negativeNet] });
 			}
+			const documentSource = await api.sys_FileManager.getDocumentSource();
+			if (typeof documentSource !== 'string' || !documentSource) throw new Error('无法读取 PCB 文档源码，差分规则未写入');
+			const patchedBindings = patchDifferentialRuleBindings(documentSource, sourceBindings);
+			if (patchedBindings.missing.length) throw new Error(`差分规则未找到对应 RULE_SELECTOR：${patchedBindings.missing.join(', ')}`);
+			adrLog('differentialRules.docSource', { changes: patchedBindings.changes, matched: patchedBindings.matched });
+			if (patchedBindings.changes.length && !await api.sys_FileManager.setDocumentSource(patchedBindings.text)) throw new Error('差分规则文档源码写入失败');
 			const boundRules = await api.pcb_Drc.getNetRules();
 			for (const pair of state.plan.differentialPairs) {
 				const rule = state.plan.rules.find(item => item.category === 'differential' && (item.nets.includes(pair.positiveNet) || item.nets.includes(pair.negativeNet)));
@@ -633,30 +555,32 @@
 				}
 			}
 			// Create impedance net classes dynamically from the generated plan and bind
-			// Safe Spacing / Via Size on each class row, exactly like PWR_Class binds its Track profile.
+			// their generated Safe Spacing profile on each class row.
 			const normalizeClassName = name => String(name || '').replace(/[ _-]/g, '').toLowerCase();
-			for (const impedanceClass of (state.plan.viaProfiles || []).filter(item => item.className !== 'PWR_Class')) {
+			for (const impedanceClass of (state.plan.impedanceClasses || [])) {
 				const classes = await api.pcb_Drc.getAllNetClasses();
-				const existing = classes.find(item => normalizeClassName(item.name) === normalizeClassName(impedanceClass.className));
-				if (!existing && !await api.pcb_Drc.createNetClass(impedanceClass.className, impedanceClass.nets, { r: 64, g: 158, b: 255, alpha: 1 })) throw new Error(`网络类 ${impedanceClass.className} 创建失败`);
+				const existing = classes.find(item => normalizeClassName(item.name) === normalizeClassName(impedanceClass.name));
+				if (!existing && !await api.pcb_Drc.createNetClass(impedanceClass.name, impedanceClass.nets, impedanceClass.color)) throw new Error(`网络类 ${impedanceClass.name} 创建失败`);
+				if (existing) {
+					const missingNets = impedanceClass.nets.filter(net => !(existing.nets || []).includes(net));
+					if (missingNets.length && !await api.pcb_Drc.addNetToNetClass(existing.name, missingNets)) throw new Error(`网络类 ${existing.name} 添加网络失败：${missingNets.join(', ')}`);
+				}
 				let bound = false;
 				for (let attempt = 0; attempt < 5 && !bound; attempt++) {
 					if (attempt) await new Promise(resolve => setTimeout(resolve, 200));
 					const classRules = await api.pcb_Drc.getNetRules();
-					const classRule = classRules.find(row => row.type === 'netClass' && normalizeClassName(row.name) === normalizeClassName(impedanceClass.className));
+					const classRule = classRules.find(row => row.type === 'netClass' && normalizeClassName(row.name) === normalizeClassName(impedanceClass.name));
 					if (!classRule) continue;
-					classRule['Safe Spacing'] = impedanceClass.ruleProfileName;
-					classRule['Via Size'] = impedanceClass.profileName;
-					for (const sub of classRule.sub || []) if (impedanceClass.nets.includes(sub.name)) { sub['Safe Spacing'] = impedanceClass.ruleProfileName; sub['Via Size'] = impedanceClass.profileName; }
-					if (await api.pcb_Drc.overwriteNetRules(classRules) === false) throw new Error(`网络类 ${impedanceClass.className} 规则写入失败`);
+					classRule['Safe Spacing'] = impedanceClass.profileName;
+					for (const sub of classRule.sub || []) if (impedanceClass.nets.includes(sub.name)) sub['Safe Spacing'] = impedanceClass.profileName;
+					if (await api.pcb_Drc.overwriteNetRules(classRules) === false) throw new Error(`网络类 ${impedanceClass.name} 规则写入失败`);
 					const verified = await api.pcb_Drc.getNetRules();
-					const verifiedClass = verified.find(row => row.type === 'netClass' && normalizeClassName(row.name) === normalizeClassName(impedanceClass.className));
-					bound = verifiedClass?.['Safe Spacing'] === impedanceClass.ruleProfileName
-						&& verifiedClass?.['Via Size'] === impedanceClass.profileName
-						&& (verifiedClass.sub || []).filter(sub => impedanceClass.nets.includes(sub.name)).every(sub => sub['Safe Spacing'] === impedanceClass.ruleProfileName && sub['Via Size'] === impedanceClass.profileName);
+					const verifiedClass = verified.find(row => row.type === 'netClass' && normalizeClassName(row.name) === normalizeClassName(impedanceClass.name));
+					bound = verifiedClass?.['Safe Spacing'] === impedanceClass.profileName
+						&& impedanceClass.nets.every(net => (verifiedClass.sub || []).some(sub => sub.name === net && sub['Safe Spacing'] === impedanceClass.profileName));
 				}
-				if (!bound) throw new Error(`网络类 ${impedanceClass.className} 的 Safe Spacing / Via Size 规则回读失败`);
-				adrLog('impedanceClass.bound', { name: impedanceClass.className, profile: impedanceClass.profileName, nets: impedanceClass.nets });
+				if (!bound) throw new Error(`网络类 ${impedanceClass.name} 的 Safe Spacing 规则回读失败`);
+				adrLog('impedanceClass.bound', { name: impedanceClass.name, profile: impedanceClass.profileName, nets: impedanceClass.nets });
 			}
 			if (state.plan.powerClass) {
 				const classes = await api.pcb_Drc.getAllNetClasses();
@@ -736,10 +660,20 @@
 					if (finalClass?.['Safe Spacing'] !== impedanceClass.profileName || !(finalClass.sub || []).filter(sub => impedanceClass.nets.includes(sub.name)).every(sub => sub['Safe Spacing'] === impedanceClass.profileName)) throw new Error(`网络类 ${impedanceClass.name} 的 Safe Spacing 规则回读失败`);
 				}
 			}
-			status('应用成功', '物理-导线、网络类和网络规则回读验证通过'); setProgress('应用完成', 100); toast('设计规则与网络类已应用并验证');
+			await applyRuleColors();
+			status('应用成功', `物理-导线、网络类和网络规则回读验证通过${state.plan.colorEnabled ? '，规则线颜色已配置' : ''}`); setProgress('应用完成', 100); toast('设计规则与网络类已应用并验证');
 		}
 		catch (error) { adrError('apply.error', { message: error?.message, stack: error?.stack, name: error?.name }); status('应用失败', error.message); toast(error.message, true); throw error; }
-		finally { $('#applyBtn').disabled = false; }
+		finally { $('#applyBtn').disabled = !state.plan || !state.selected?.verified; }
+	}
+	async function applyRuleColors() {
+		if (!state.plan?.colorEnabled) return;
+		if (typeof api?.pcb_Net?.setNetColor !== 'function' || typeof api?.pcb_Net?.getNetColor !== 'function') throw new Error('当前 EasyEDA 版本不支持规则线颜色配置');
+		for (const rule of state.plan.rules) for (const net of rule.nets) {
+			if (await api.pcb_Net.setNetColor(net, rule.color) === false) throw new Error(`网络 ${net} 颜色写入失败`);
+			const actual = await api.pcb_Net.getNetColor(net);
+			if (!actual || ['r', 'g', 'b'].some(key => Number(actual[key]) !== Number(rule.color[key]))) throw new Error(`网络 ${net} 颜色回读失败`);
+		}
 	}
 	async function applyPowerClass(powerClass) {
 		const normalizeClassName = name => String(name || '').replace(/[ _-]/g, '').toLowerCase();
@@ -758,8 +692,7 @@
 		const missing = powerClass.nets.filter(net => !(current.nets || []).includes(net));
 		if (missing.length && !await api.pcb_Drc.addNetToNetClass(actualName, missing)) throw new Error(`网络类 ${actualName} 添加网络失败`);
 	}
-	async function restore() { if (!api) throw new Error('EasyEDA API 不可用'); const raw = await api.sys_Storage.getExtensionUserConfig('adr:last-backup'); if (!raw) throw new Error('没有可恢复的备份'); const backup = JSON.parse(raw); status('正在恢复', backup.timestamp || '上次备份'); const cfg = backup.configuration; if (!cfg?.config?.Spacing?.['Safe Spacing']) { status('恢复跳过', '备份结构不完整，已跳过规则配置恢复'); toast('备份结构不完整，规则配置未恢复'); return; } if (await api.pcb_Drc.overwriteCurrentRuleConfiguration(cfg) === false) throw new Error('设计规则配置恢复失败'); if (backup.netRules && !await api.pcb_Drc.overwriteNetRules(backup.netRules)) throw new Error('网络规则恢复失败'); status('恢复成功', '已恢复上次应用前的规则'); toast('规则备份已恢复'); }
-	function render() { const names = { differential: '差分', impedance: '阻抗', power: '电源', ground: '地', signal: '普通' }, rows = state.classified.filter(item => state.filter === 'all' || item.category === state.filter); $('#netCount').textContent = `${state.classified.length} 个网络`; $('#netRows').innerHTML = rows.length ? rows.map(item => `<tr><td><b>${item.net}</b></td><td><span class="category ${item.category}">${names[item.category]}</span></td><td>${item.mate || (item.targetOhms ? `${item.targetOhms} Ω` : '—')}</td><td>${item.widthMil ? `${item.widthMil.toFixed(2)} mil` : '默认'}</td><td>${item.profileName || '不修改'}</td><td class="${item.warnings.length ? 'status-warn' : 'status-ok'}">${item.warnings[0] || '就绪'}</td></tr>`).join('') : '<tr><td colspan="6" class="empty">此分类没有网络</td></tr>'; if (!state.plan) return; const nets = state.plan.rules.reduce((sum, rule) => sum + rule.nets.length, 0); $('#ruleMetric').textContent = state.plan.rules.length; $('#netMetric').textContent = nets; $('#pairMetric').textContent = state.plan.differentialPairs.length; $('#warningMetric').textContent = state.plan.warnings.length; $('#ruleCards').innerHTML = state.plan.rules.map(rule => `<div class="rule-card"><b>${rule.profileName}</b><p>${rule.nets.length} 个网络 · ${rule.widthMil.toFixed(2)} mil${rule.gapMil ? ` · 间距 ${rule.gapMil} mil` : ''}</p></div>`).join('')
+	function render() { const names = { differential: '差分', impedance: '阻抗', power: '电源', ground: '地', signal: '普通' }, rows = state.classified.filter(item => state.filter === 'all' || item.category === state.filter); $('#netCount').textContent = `${state.classified.length} 个网络`; $('#netRows').innerHTML = rows.length ? rows.map(item => `<tr><td><b>${item.net}</b></td><td><span class="category ${item.category}">${names[item.category]}</span></td><td>${item.mate || (item.targetOhms ? `${item.targetOhms} Ω` : '—')}</td><td>${item.widthMil ? `${item.widthMil.toFixed(2)} mil` : '默认'}</td><td>${item.profileName || '不修改'}</td><td class="${item.warnings.length ? 'status-warn' : 'status-ok'}">${item.warnings[0] || '就绪'}</td></tr>`).join('') : '<tr><td colspan="6" class="empty">此分类没有网络</td></tr>'; if (!state.plan) return; const nets = state.plan.rules.reduce((sum, rule) => sum + rule.nets.length, 0); $('#ruleMetric').textContent = state.plan.rules.length; $('#netMetric').textContent = nets; $('#pairMetric').textContent = state.plan.differentialPairs.length; $('#warningMetric').textContent = state.plan.warnings.length; $('#ruleCards').innerHTML = state.plan.rules.map(rule => `<div class="rule-card"><b><span class="color-swatch" style="background:${colorHex(rule.color)}"></span>${rule.profileName}</b><p>${rule.nets.length} 个网络 · ${rule.widthMil.toFixed(2)} mil${rule.gapMil ? ` · 间距 ${rule.gapMil} mil` : ''} · ${colorHex(rule.color)}</p></div>`).join('')
  	+ (state.plan.impedanceClasses || []).map(cls => `<div class="rule-card"><b>${cls.name}</b><p>${cls.nets.length} 个网络 · Safe Spacing → ${cls.profileName}</p></div>`).join(''); }
 	function aiConfig() { return { enabled: $('#aiEnabled').checked, baseUrl: $('#aiBaseUrl').value.replace(/\/+$/, ''), apiKey: $('#aiApiKey').value, model: $('#aiModel').value, temperature: Number($('#aiTemperature').value) || 0.2 }; }
 	async function aiClassify(nets, boardContext) {
@@ -864,7 +797,9 @@
 	}
 	async function loadAiConfig() { if (!api?.sys_Storage?.getExtensionUserConfig) return; try { const raw = await api.sys_Storage.getExtensionUserConfig('adr:ai-config'); if (!raw) return; const cfg = JSON.parse(raw); $('#aiEnabled').checked = !!cfg.enabled; $('#aiBaseUrl').value = cfg.baseUrl || 'https://api.openai.com/v1'; $('#aiModel').value = cfg.model || 'gpt-4o-mini'; $('#aiTemperature').value = String(cfg.temperature ?? 0.2); if (cfg.apiKey) { $('#aiApiKey').value = cfg.apiKey; $('#aiApiKey').dataset.loaded = '1'; } } catch { /* 忽略损坏配置 */ } }
 	async function saveAiConfig() { if (!api?.sys_Storage?.setExtensionUserConfig) return; let apiKey = $('#aiApiKey').value; if (!apiKey && $('#aiApiKey').dataset.loaded === '1') { try { apiKey = JSON.parse(await api.sys_Storage.getExtensionUserConfig('adr:ai-config') || '{}').apiKey || ''; } catch { apiKey = ''; } $('#aiApiKey').value = apiKey; } await api.sys_Storage.setExtensionUserConfig('adr:ai-config', JSON.stringify({ enabled: $('#aiEnabled').checked, baseUrl: $('#aiBaseUrl').value.replace(/\/+$/, ''), model: $('#aiModel').value, temperature: Number($('#aiTemperature').value) || 0.2, apiKey })); }
-	function refresh() { evaluateStackups(); makePlan(); $('#previewBtn').disabled = !state.plan; $('#applyBtn').disabled = !state.plan; }
+	async function loadRuleColorConfig() { if (!api?.sys_Storage?.getExtensionUserConfig) return; const checkbox = $('#autoRuleColors'), hint = $('#ruleColorHint'); try { const raw = await api.sys_Storage.getExtensionUserConfig('adr:rule-color-config'); checkbox.checked = raw ? !!JSON.parse(raw).enabled : false; updateRuleColorHint(checkbox, hint); } catch { checkbox.checked = false; updateRuleColorHint(checkbox, hint); } }
+	async function saveRuleColorConfig() { if (api?.sys_Storage?.setExtensionUserConfig) await api.sys_Storage.setExtensionUserConfig('adr:rule-color-config', JSON.stringify({ enabled: $('#autoRuleColors').checked })); }
+	function updateRuleColorHint(checkbox = $('#autoRuleColors'), hint = $('#ruleColorHint')) { if (checkbox && hint) hint.innerHTML = checkbox.checked ? '已开启：信号、等长/差分和电源规则组将分配稳定的高对比度颜色。' : '已关闭：规则组默认颜色为 <code>#000000</code>，不会改写 PCB 网络颜色。'; }
 	function calcPowerWidth() {
 		const I = number('pwrCurrent'), lenMm = number('pwrLength'), copperUm = Number($('#pwrCopperOz').value);
 		const isExt = $('#pwrLayerType').value === 'external', dT = number('pwrTempRise'), ambient = number('pwrAmbient');
@@ -913,12 +848,14 @@
 	$('#manualDifferential').addEventListener('change', () => { const differential = $('#manualDifferential').value === '1', target = $('#manualTarget'); target.value = differential ? '100' : '50'; target.min = differential ? '50' : '20'; target.max = differential ? '150' : '90'; });
 	$('#impedanceModal').addEventListener('click', event => { if (event.target === $('#impedanceModal')) closeImpedanceModal(); });
 	$('#scanBtn').addEventListener('click', () => scan().catch(error => { status('扫描失败', error.message); toast(error.message, true); }));
-	$('#calculateBtn').addEventListener('click', () => { try { if (!state.snapshot) throw new Error('请先扫描当前 PCB'); setProgress('正在计算叠层', 30); calcPowerWidth(); evaluateStackups(); makePlan(); $('#previewBtn').disabled = !state.plan; $('#applyBtn').disabled = !state.plan; status('计算完成', `${state.evaluations.length} 个候选方案 · 请选择后应用`); setProgress('计算完成', 100); toast('电源线宽与设计规则已计算'); } catch (error) { status('计算失败', error.message); toast(error.message, true); } });
-	$('#previewBtn').addEventListener('click', () => { try { refresh(); } catch (error) { toast(error.message, true); } }); $('#applyBtn').addEventListener('click', () => apply().catch(error => { status('应用失败', error.message); toast(error.message, true); })); $('#restoreBtn').addEventListener('click', () => restore().catch(error => toast(error.message, true)));
+	$('#calculateBtn').addEventListener('click', () => { try { if (!state.snapshot) throw new Error('请先扫描当前 PCB'); setProgress('正在计算叠层', 30); calcPowerWidth(); evaluateStackups(); makePlan(); state.calculationSignature = calculationSignature(); $('#applyBtn').disabled = !state.plan || !state.selected?.verified; status('计算完成', `${state.evaluations.length} 个候选方案 · 请选择后生成`); setProgress('计算完成', 100); toast('电源线宽与设计规则已计算'); } catch (error) { status('计算失败', error.message); toast(error.message, true); } });
+	$('#applyBtn').addEventListener('click', () => apply().catch(error => { status('生成失败', error.message); toast(error.message, true); }));
 	$('#customRules').addEventListener('change', () => { try { JSON.parse($('#customRules').value || '[]'); toast('自定义规则已保存，重新扫描生效'); } catch { toast('规则 JSON 格式错误', true); } });
 	for (const id of ['aiEnabled', 'aiBaseUrl', 'aiApiKey', 'aiModel', 'aiTemperature']) $(`#${id}`).addEventListener('change', () => { saveAiConfig().catch(() => {}); });
+	$('#autoRuleColors').addEventListener('change', () => { updateRuleColorHint(); saveRuleColorConfig().catch(() => {}); if (state.plan) { makePlan(); state.calculationSignature = calculationSignature(); } });
 	$('#aiTestBtn').addEventListener('click', async () => { try { setProgress('正在测试 AI 连接', 30); const cfg = aiConfig(); if (!cfg.baseUrl || !cfg.apiKey || !cfg.model) throw new Error('请先完整填写 AI Base URL / API Key / 模型'); const response = await fetch(`${cfg.baseUrl}/chat/completions`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cfg.apiKey}` }, body: JSON.stringify({ model: cfg.model, max_tokens: 5, messages: [{ role: 'user', content: 'ping' }] }) }); if (!response.ok) throw new Error(`HTTP ${response.status}`); setProgress('连接测试成功', 100); toast('AI 连接测试成功'); } catch (error) { setProgress('连接测试失败', 100); toast(`AI 连接失败：${error.message}`, true); } });
 	loadAiConfig();
+	loadRuleColorConfig();
 	calcPowerWidth();
 	for (const id of ['pwrCurrent', 'pwrLength', 'pwrCopperOz', 'pwrLayerType', 'pwrAmbient', 'pwrTempRise']) $(`#${id}`).addEventListener('input', calcPowerWidth);
 	for (const id of ['pwrCopperOz', 'pwrLayerType']) $(`#${id}`).addEventListener('change', calcPowerWidth);

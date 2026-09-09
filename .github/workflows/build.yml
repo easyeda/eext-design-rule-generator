@@ -11,8 +11,137 @@ permissions:
   contents: write
 
 jobs:
-  build-and-release:
+  check-config:
     runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.config.outputs.enabled }}
+      locales: ${{ steps.config.outputs.locales }}
+      node_version: ${{ steps.config.outputs.node_version }}
+      build_command: ${{ steps.config.outputs.build_command }}
+      build_output_dir: ${{ steps.config.outputs.build_output_dir }}
+      branches: ${{ steps.config.outputs.branches }}
+      release: ${{ steps.config.outputs.release }}
+      changelog: ${{ steps.config.outputs.changelog }}
+      cjk_threshold: ${{ steps.config.outputs.cjk_threshold }}
+      zh_cn_readme_match: ${{ steps.config.outputs.zh_cn_readme_match }}
+      zh_cn_i18n: ${{ steps.config.outputs.zh_cn_i18n }}
+      global_readme_match: ${{ steps.config.outputs.global_readme_match }}
+      global_i18n: ${{ steps.config.outputs.global_i18n }}
+      branch_allowed: ${{ steps.branch_check.outputs.branch_allowed }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read CI config
+        id: config
+        run: |
+          CONFIG_FILE=".github/ci.json"
+
+          if [ -f "$CONFIG_FILE" ]; then
+            echo "📄 Found .github/ci.json"
+            ENABLED=$(jq -r '.enabled // false' "$CONFIG_FILE")
+            NODE_VERSION=$(jq -r '.node_version // "22"' "$CONFIG_FILE")
+            BUILD_COMMAND=$(jq -r '.build_command // ""' "$CONFIG_FILE")
+            BUILD_OUTPUT_DIR=$(jq -r '.build_output_dir // "build/dist"' "$CONFIG_FILE")
+            BRANCHES=$(jq -r '.branches // ["main","master"] | join(",")' "$CONFIG_FILE")
+            RELEASE=$(jq -r '.release // true' "$CONFIG_FILE")
+            CHANGELOG=$(jq -r '.changelog // true' "$CONFIG_FILE")
+
+            # 解析 locales 配置 (支持对象和数组两种格式)
+            LOCALES_TYPE=$(jq -r '.locales | type' "$CONFIG_FILE")
+            if [ "$LOCALES_TYPE" = "object" ]; then
+              LOCALES=$(jq -r '.locales.build // ["zh-cn","global"] | join(",")' "$CONFIG_FILE")
+              CJK_THRESHOLD=$(jq -r '.locales["zh-cn"].readme.cjk_threshold // 10' "$CONFIG_FILE")
+              ZH_CN_README=$(jq -r '.locales["zh-cn"].readme.match // ["README_zh.md","README.zh.md","README_zh-*.md","README.zh-*.md"] | join(",")' "$CONFIG_FILE")
+              ZH_CN_I18N=$(jq -r '.locales["zh-cn"].i18n // "locales/extensionJson/zh-Hans.json"' "$CONFIG_FILE")
+              GLOBAL_README=$(jq -r '.locales.global.readme.match // ["README_EN.md","README_en.md","README.en.md","README_EN-*.md","README_en-*.md","README.en-*.md"] | join(",")' "$CONFIG_FILE")
+              GLOBAL_I18N=$(jq -r '.locales.global.i18n // "locales/extensionJson/en.json"' "$CONFIG_FILE")
+            else
+              LOCALES=$(jq -r '.locales // ["zh-cn","global"] | join(",")' "$CONFIG_FILE")
+              CJK_THRESHOLD="10"
+              ZH_CN_README="README_zh.md,README.zh.md,README_zh-*.md,README.zh-*.md"
+              ZH_CN_I18N="locales/extensionJson/zh-Hans.json"
+              GLOBAL_README="README_EN.md,README_en.md,README.en.md,README_EN-*.md,README_en-*.md,README.en-*.md"
+              GLOBAL_I18N="locales/extensionJson/en.json"
+            fi
+          else
+            echo "📄 No .github/ci.json found, using defaults (CI disabled)"
+            ENABLED="false"
+            LOCALES="zh-cn,global"
+            NODE_VERSION="22"
+            BUILD_COMMAND=""
+            BUILD_OUTPUT_DIR="build/dist"
+            BRANCHES="main,master"
+            RELEASE="true"
+            CHANGELOG="true"
+            CJK_THRESHOLD="10"
+            ZH_CN_README="README_zh.md,README.zh.md,README_zh-*.md,README.zh-*.md"
+            ZH_CN_I18N="locales/extensionJson/zh-Hans.json"
+            GLOBAL_README="README_EN.md,README_en.md,README.en.md,README_EN-*.md,README_en-*.md,README.en-*.md"
+            GLOBAL_I18N="locales/extensionJson/en.json"
+          fi
+
+          echo "  enabled:          $ENABLED"
+          echo "  locales:          $LOCALES"
+          echo "  node_version:     $NODE_VERSION"
+          echo "  build_command:    ${BUILD_COMMAND:-<auto>}"
+          echo "  build_output_dir: $BUILD_OUTPUT_DIR"
+          echo "  branches:         $BRANCHES"
+          echo "  release:          $RELEASE"
+          echo "  changelog:        $CHANGELOG"
+          echo "  cjk_threshold:    $CJK_THRESHOLD"
+          echo "  zh_cn_readme:     $ZH_CN_README"
+          echo "  zh_cn_i18n:       $ZH_CN_I18N"
+          echo "  global_readme:    $GLOBAL_README"
+          echo "  global_i18n:      $GLOBAL_I18N"
+
+          echo "enabled=$ENABLED" >> $GITHUB_OUTPUT
+          echo "locales=$LOCALES" >> $GITHUB_OUTPUT
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          echo "build_command=$BUILD_COMMAND" >> $GITHUB_OUTPUT
+          echo "build_output_dir=$BUILD_OUTPUT_DIR" >> $GITHUB_OUTPUT
+          echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
+          echo "release=$RELEASE" >> $GITHUB_OUTPUT
+          echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "cjk_threshold=$CJK_THRESHOLD" >> $GITHUB_OUTPUT
+          echo "zh_cn_readme_match=$ZH_CN_README" >> $GITHUB_OUTPUT
+          echo "zh_cn_i18n=$ZH_CN_I18N" >> $GITHUB_OUTPUT
+          echo "global_readme_match=$GLOBAL_README" >> $GITHUB_OUTPUT
+          echo "global_i18n=$GLOBAL_I18N" >> $GITHUB_OUTPUT
+
+      - name: Check branch
+        id: branch_check
+        run: |
+          CURRENT_BRANCH="${GITHUB_REF_NAME}"
+          ALLOWED_BRANCHES="${{ steps.config.outputs.branches }}"
+          echo "Current branch: $CURRENT_BRANCH"
+          echo "Allowed branches: $ALLOWED_BRANCHES"
+
+          if echo ",$ALLOWED_BRANCHES," | grep -q ",$CURRENT_BRANCH,"; then
+            echo "✅ Branch $CURRENT_BRANCH is allowed"
+            echo "branch_allowed=true" >> $GITHUB_OUTPUT
+          else
+            echo "⏭️ Branch $CURRENT_BRANCH is not in allowed list ($ALLOWED_BRANCHES)"
+            echo "branch_allowed=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-and-release:
+    needs: check-config
+    if: needs.check-config.outputs.enabled == 'true' && needs.check-config.outputs.branch_allowed == 'true'
+    runs-on: ubuntu-latest
+    env:
+      CI_LOCALES: ${{ needs.check-config.outputs.locales }}
+      CI_BUILD_COMMAND: ${{ needs.check-config.outputs.build_command }}
+      CI_BUILD_OUTPUT_DIR: ${{ needs.check-config.outputs.build_output_dir }}
+      CI_RELEASE: ${{ needs.check-config.outputs.release }}
+      CI_CHANGELOG: ${{ needs.check-config.outputs.changelog }}
+      CI_CJK_THRESHOLD: ${{ needs.check-config.outputs.cjk_threshold }}
+      CI_ZH_CN_README: ${{ needs.check-config.outputs.zh_cn_readme_match }}
+      CI_ZH_CN_I18N: ${{ needs.check-config.outputs.zh_cn_i18n }}
+      CI_GLOBAL_README: ${{ needs.check-config.outputs.global_readme_match }}
+      CI_GLOBAL_I18N: ${{ needs.check-config.outputs.global_i18n }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -22,7 +151,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # Node 22+ 对 ESM + ts-node 支持更好
+          node-version: ${{ needs.check-config.outputs.node_version }}
 
       - name: Detect project module format (CJS/ESM)
         id: detect_format
@@ -102,8 +231,21 @@ jobs:
             npm install
           fi
 
+      - name: Remove CI metadata from package source
+        run: |
+          # Runner 工作区是临时副本; 构建前移除，确保基础包及后续语言分包均不包含 .github
+          rm -rf .github
+          echo "Removed .github from the temporary build workspace"
+
       - name: Build project
         run: |
+          # 如果配置了自定义构建命令, 直接使用
+          if [ -n "$CI_BUILD_COMMAND" ]; then
+            echo "🔨 使用自定义构建命令: $CI_BUILD_COMMAND"
+            eval "$CI_BUILD_COMMAND"
+            exit $?
+          fi
+
           if [ "$IS_ESM" = "true" ]; then
             echo "🔨 ESM 项目: 执行构建"
 
@@ -150,7 +292,7 @@ jobs:
           echo "🔍 验证构建输出格式..."
 
           # 检查构建产物目录
-          DIST_DIR="build/dist"
+          DIST_DIR="$CI_BUILD_OUTPUT_DIR"
           if [ ! -d "$DIST_DIR" ]; then
             echo "⚠️ 构建产物目录不存在: $DIST_DIR"
             # 尝试其他可能的目录
@@ -183,6 +325,7 @@ jobs:
 
       - name: Check and create tag
         id: check_tag
+        if: env.CI_RELEASE == 'true'
         run: |
           VERSION=${{ env.VERSION }}
           TAG="v${VERSION}"
@@ -200,8 +343,14 @@ jobs:
             echo "SKIP_RELEASE=false" >> $GITHUB_ENV
           fi
 
+      - name: Skip release (disabled in config)
+        if: env.CI_RELEASE != 'true'
+        run: |
+          echo "⏭️ Release disabled in .github/ci.json (release: false)"
+          echo "SKIP_RELEASE=true" >> $GITHUB_ENV
+
       - name: Extract changelog for version
-        if: env.SKIP_RELEASE == 'false'
+        if: env.SKIP_RELEASE == 'false' && env.CI_CHANGELOG == 'true'
         id: changelog
         run: |
           VERSION=${{ env.VERSION }}
@@ -266,43 +415,73 @@ jobs:
           echo "$NOTES"
           echo "---------------------------"
 
-      - name: Build zh-cn package
-        if: env.SKIP_RELEASE == 'false'
+      - name: Set default release notes
+        if: env.SKIP_RELEASE == 'false' && env.CI_CHANGELOG != 'true'
         run: |
           VERSION=${{ env.VERSION }}
           EEXTNAME=${{ env.EEXTNAME }}
-          DIST_DIR="build/dist"
+          NOTES="Release v${VERSION}
+
+          ---
+          由GitHub Actions自动构建并发布
+          Built and released automatically by GitHub Actions
+
+          也可前往[嘉立创EDA扩展广场](https://jlc-ext.com/item/oshwhub/${EEXTNAME})下载
+          Also available at [JLCEDA Extension Plaza](https://jlcext.com/item/oshwlab/${EEXTNAME})"
+
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Build zh-cn package
+        if: env.SKIP_RELEASE == 'false' && contains(env.CI_LOCALES, 'zh-cn')
+        run: |
+          VERSION=${{ env.VERSION }}
+          EEXTNAME=${{ env.EEXTNAME }}
+          DIST_DIR="$CI_BUILD_OUTPUT_DIR"
           BASE_FILE="${DIST_DIR}/${EEXTNAME}_v${VERSION}.eext"
           ZH_FILE="${DIST_DIR}/${EEXTNAME}_v${VERSION}_zh-cn.eext"
+          THRESHOLD="$CI_CJK_THRESHOLD"
 
-          echo "Building zh-cn package..."
+          echo "Building zh-cn package (cjk_threshold: $THRESHOLD)..."
 
           # Detect language by counting Chinese characters in README.md
           CN_COUNT=$(grep -oP '[\x{4e00}-\x{9fff}]' README.md 2>/dev/null | wc -l)
-          if [ "$CN_COUNT" -gt 10 ]; then
+          if [ "$CN_COUNT" -gt "$THRESHOLD" ]; then
             IS_CHINESE=true
           else
             IS_CHINESE=false
           fi
-          echo "README.md Chinese chars: $CN_COUNT, is_chinese: $IS_CHINESE"
+          echo "README.md Chinese chars: $CN_COUNT, threshold: $THRESHOLD, is_chinese: $IS_CHINESE"
 
           if [ "$IS_CHINESE" = "true" ]; then
             # README.md is Chinese, just copy
             echo "README.md is Chinese, just copy"
             cp "$BASE_FILE" "$ZH_FILE"
           else
-            # README.md is English, find zh and swap
+            # README.md is English, find zh readme from config patterns
             ZH_README=""
-            if [ -f "README_zh.md" ]; then
-              ZH_README="README_zh.md"
-            elif [ -f "README.zh.md" ]; then
-              ZH_README="README.zh.md"
-            else
-              ZH_README=$(ls README_zh-*.md README.zh-*.md 2>/dev/null | head -1)
-            fi
+            IFS=',' read -ra PATTERNS <<< "$CI_ZH_CN_README"
+            for pattern in "${PATTERNS[@]}"; do
+              pattern=$(echo "$pattern" | xargs)  # trim whitespace
+              if [[ "$pattern" == *"*"* ]]; then
+                # Glob pattern — use ls to find match
+                FOUND=$(ls $pattern 2>/dev/null | head -1)
+                if [ -n "$FOUND" ]; then
+                  ZH_README="$FOUND"
+                  break
+                fi
+              else
+                # Exact filename
+                if [ -f "$pattern" ]; then
+                  ZH_README="$pattern"
+                  break
+                fi
+              fi
+            done
 
             if [ -z "$ZH_README" ]; then
-              echo "README.md is English, no zh found, just copy"
+              echo "README.md is English, no zh readme found (patterns: $CI_ZH_CN_README), just copy"
               cp "$BASE_FILE" "$ZH_FILE"
             else
               echo "README.md is English, swap zh: $ZH_README"
@@ -310,26 +489,27 @@ jobs:
               cp "$ZH_README" README.md
               find . -name "*.md" -not -path "./build/*" -not -path "./node_modules/*" -not -path "./.git/*" -exec sed -i 's/README\.md/README.en.md/g' {} +
 
-              # Swap extension.json fields with zh-Hans translations
-              ZH_I18N="locales/extensionJson/zh-Hans.json"
+              # Swap extension.json fields with locale translations
+              ZH_I18N="$CI_ZH_CN_I18N"
               if [ -f "$ZH_I18N" ]; then
-                echo "Swapping extension.json with zh-Hans translations..."
+                echo "Swapping extension.json with $ZH_I18N translations..."
                 TMP_EXT=$(mktemp)
                 jq --slurpfile i18n "$ZH_I18N" '
                   (if .displayName then .displayName = ($i18n[0].displayName // $i18n[0][.displayName] // .displayName) else . end) |
                   (if .description then .description = ($i18n[0].description // $i18n[0][.description] // .description) else . end) |
                   (if .keywords then .keywords = [.keywords[] | ($i18n[0][.] // .)] else . end)
                 ' extension.json > "$TMP_EXT" && mv "$TMP_EXT" extension.json
-                echo "extension.json swapped to zh-Hans"
+                echo "extension.json swapped"
               fi
 
               # 根据项目格式选择构建命令
-              if [ "$IS_ESM" = "true" ]; then
+              if [ -n "$CI_BUILD_COMMAND" ]; then
+                eval "$CI_BUILD_COMMAND"
+              elif [ "$IS_ESM" = "true" ]; then
                 ESM_BUILD_SCRIPT=$(jq -r '.scripts["build:esm"] // empty' package.json 2>/dev/null)
                 if [ -n "$ESM_BUILD_SCRIPT" ]; then
                   npm run build:esm
                 else
-                  # 先尝试直接运行（Node 22+ 支持较好）
                   if ! npm run build; then
                     echo "⚠️ 直接构建失败，使用 tsx 替代"
                     npm install -D tsx 2>/dev/null || true
@@ -353,44 +533,54 @@ jobs:
           echo "Done: $ZH_FILE"
 
       - name: Build global package
-        if: env.SKIP_RELEASE == 'false'
+        if: env.SKIP_RELEASE == 'false' && contains(env.CI_LOCALES, 'global')
         run: |
           VERSION=${{ env.VERSION }}
           EEXTNAME=${{ env.EEXTNAME }}
-          DIST_DIR="build/dist"
+          DIST_DIR="$CI_BUILD_OUTPUT_DIR"
           BASE_FILE="${DIST_DIR}/${EEXTNAME}_v${VERSION}.eext"
           GLOBAL_FILE="${DIST_DIR}/${EEXTNAME}_v${VERSION}_global.eext"
+          THRESHOLD="$CI_CJK_THRESHOLD"
 
-          echo "Building global package..."
+          echo "Building global package (cjk_threshold: $THRESHOLD)..."
 
-          # Detect language (reuse result from zh-cn or re-detect)
+          # Detect language by counting Chinese characters in README.md
           CN_COUNT=$(grep -oP '[\x{4e00}-\x{9fff}]' README.md 2>/dev/null | wc -l)
-          if [ "$CN_COUNT" -gt 10 ]; then
+          if [ "$CN_COUNT" -gt "$THRESHOLD" ]; then
             IS_CHINESE=true
           else
             IS_CHINESE=false
           fi
-          echo "README.md Chinese chars: $CN_COUNT, is_chinese: $IS_CHINESE"
+          echo "README.md Chinese chars: $CN_COUNT, threshold: $THRESHOLD, is_chinese: $IS_CHINESE"
 
           if [ "$IS_CHINESE" = "false" ]; then
             # README.md is English, just copy
             echo "README.md is English, just copy"
             cp "$BASE_FILE" "$GLOBAL_FILE"
           else
-            # README.md is Chinese, find en and swap
+            # README.md is Chinese, find en readme from config patterns
             EN_README=""
-            if [ -f "README_EN.md" ]; then
-              EN_README="README_EN.md"
-            elif [ -f "README_en.md" ]; then
-              EN_README="README_en.md"
-            elif [ -f "README.en.md" ]; then
-              EN_README="README.en.md"
-            else
-              EN_README=$(ls README_EN-*.md README_en-*.md README.en-*.md README.En-*.md 2>/dev/null | head -1)
-            fi
+            IFS=',' read -ra PATTERNS <<< "$CI_GLOBAL_README"
+            for pattern in "${PATTERNS[@]}"; do
+              pattern=$(echo "$pattern" | xargs)  # trim whitespace
+              if [[ "$pattern" == *"*"* ]]; then
+                # Glob pattern — use ls to find match
+                FOUND=$(ls $pattern 2>/dev/null | head -1)
+                if [ -n "$FOUND" ]; then
+                  EN_README="$FOUND"
+                  break
+                fi
+              else
+                # Exact filename
+                if [ -f "$pattern" ]; then
+                  EN_README="$pattern"
+                  break
+                fi
+              fi
+            done
 
             if [ -z "$EN_README" ]; then
-              echo "README.md is Chinese, no en found, just copy"
+              echo "README.md is Chinese, no en readme found (patterns: $CI_GLOBAL_README), just copy"
               cp "$BASE_FILE" "$GLOBAL_FILE"
             else
               echo "README.md is Chinese, swap en: $EN_README"
@@ -398,26 +588,27 @@ jobs:
               cp "$EN_README" README.md
               find . -name "*.md" -not -path "./build/*" -not -path "./node_modules/*" -not -path "./.git/*" -exec sed -i 's/README\.md/README.zh.md/g' {} +
 
-              # Swap extension.json fields with en translations
-              EN_I18N="locales/extensionJson/en.json"
+              # Swap extension.json fields with locale translations
+              EN_I18N="$CI_GLOBAL_I18N"
               if [ -f "$EN_I18N" ]; then
-                echo "Swapping extension.json with en translations..."
+                echo "Swapping extension.json with $EN_I18N translations..."
                 TMP_EXT=$(mktemp)
                 jq --slurpfile i18n "$EN_I18N" '
                   (if .displayName then .displayName = ($i18n[0].displayName // $i18n[0][.displayName] // .displayName) else . end) |
                   (if .description then .description = ($i18n[0].description // $i18n[0][.description] // .description) else . end) |
                   (if .keywords then .keywords = [.keywords[] | ($i18n[0][.] // .)] else . end)
                 ' extension.json > "$TMP_EXT" && mv "$TMP_EXT" extension.json
-                echo "extension.json swapped to en"
+                echo "extension.json swapped"
               fi
 
               # 根据项目格式选择构建命令
-              if [ "$IS_ESM" = "true" ]; then
+              if [ -n "$CI_BUILD_COMMAND" ]; then
+                eval "$CI_BUILD_COMMAND"
+              elif [ "$IS_ESM" = "true" ]; then
                 ESM_BUILD_SCRIPT=$(jq -r '.scripts["build:esm"] // empty' package.json 2>/dev/null)
                 if [ -n "$ESM_BUILD_SCRIPT" ]; then
                   npm run build:esm
                 else
-                  # 先尝试直接运行（Node 22+ 支持较好）
                   if ! npm run build; then
                     echo "⚠️ 直接构建失败，使用 tsx 替代"
                     npm install -D tsx 2>/dev/null || true
@@ -445,7 +636,7 @@ jobs:
         run: |
           VERSION=${{ env.VERSION }}
           EEXTNAME=${{ env.EEXTNAME }}
-          rm -f "build/dist/${EEXTNAME}_v${VERSION}.eext"
+          rm -f "${CI_BUILD_OUTPUT_DIR}/${EEXTNAME}_v${VERSION}.eext"
           echo "Removed base eext"
 
       - name: Debug check artifacts
@@ -453,26 +644,32 @@ jobs:
         run: |
           VERSION=${{ env.VERSION }}
           EEXTNAME=${{ env.EEXTNAME }}
-          DIST_DIR="build/dist"
+          DIST_DIR="$CI_BUILD_OUTPUT_DIR"
           ZH_FILE="${DIST_DIR}/${EEXTNAME}_v${VERSION}_zh-cn.eext"
           GLOBAL_FILE="${DIST_DIR}/${EEXTNAME}_v${VERSION}_global.eext"
 
           echo "🔍 检查构建产物..."
 
-          if [ -f "$ZH_FILE" ]; then
-            echo "✅ 中文版产物存在: $ZH_FILE"
-          else
-            echo "❌ 中文版产物不存在: $ZH_FILE"
-            ls -R build || true
-            exit 1
+          # Only check zh-cn if it was built
+          if echo ",$CI_LOCALES," | grep -q ",zh-cn,"; then
+            if [ -f "$ZH_FILE" ]; then
+              echo "✅ 中文版产物存在: $ZH_FILE"
+            else
+              echo "❌ 中文版产物不存在: $ZH_FILE"
+              ls -R build || true
+              exit 1
+            fi
           fi
 
-          if [ -f "$GLOBAL_FILE" ]; then
-            echo "✅ 国际版产物存在: $GLOBAL_FILE"
-          else
-            echo "❌ 国际版产物不存在: $GLOBAL_FILE"
-            ls -R build || true
-            exit 1
+          # Only check global if it was built
+          if echo ",$CI_LOCALES," | grep -q ",global,"; then
+            if [ -f "$GLOBAL_FILE" ]; then
+              echo "✅ 国际版产物存在: $GLOBAL_FILE"
+            else
+              echo "❌ 国际版产物不存在: $GLOBAL_FILE"
+              ls -R build || true
+              exit 1
+            fi
           fi
 
       - name: Upload Release
@@ -483,7 +680,7 @@ jobs:
           name: Release v${{ env.VERSION }}
           body: ${{ env.RELEASE_NOTES }}
           files: |
-            build/dist/${{ env.EEXTNAME }}_v${{ env.VERSION }}_zh-cn.eext
-            build/dist/${{ env.EEXTNAME }}_v${{ env.VERSION }}_global.eext
+            ${{ needs.check-config.outputs.build_output_dir }}/${{ env.EEXTNAME }}_v${{ env.VERSION }}_zh-cn.eext
+            ${{ needs.check-config.outputs.build_output_dir }}/${{ env.EEXTNAME }}_v${{ env.VERSION }}_global.eext
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

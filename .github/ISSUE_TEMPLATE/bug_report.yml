@@ -1,0 +1,84 @@
+name: Bug 报告 / Bug Report
+description: 提交一个 Bug 报告 / Report a bug
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢提交 Bug 报告！请填写以下信息。
+        Thanks for reporting a bug! Please fill in the information below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug 描述 / Description
+      description: 请清晰描述遇到的问题 / Describe the bug clearly
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤 / Steps to Reproduce
+      description: 请提供复现问题的步骤 / Steps to reproduce the behavior
+      placeholder: |
+        1. 打开扩展 / Open extension
+        2. 点击... / Click on...
+        3. 看到错误 / See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为 / Expected Behavior
+      description: 你期望发生什么 / What you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为 / Actual Behavior
+      description: 实际发生了什么 / What actually happened
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 扩展版本 / Extension Version
+      placeholder: "例如 / e.g. 1.2.3"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: eda
+    attributes:
+      label: EDA 平台 / EDA Platform
+      options:
+        - 嘉立创EDA专业版 / EasyEDA Pro
+        - 嘉立创EDA专业版标准版 / EasyEDA Standard
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 运行环境 / Environment
+      description: 操作系统、浏览器等 / OS, browser, etc.
+      placeholder: |
+        OS: Windows 11
+        EDA: 嘉立创EDA专业版 2.2.x
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 截图 / Screenshots
+      description: 如有错误截图请粘贴 / Paste screenshots if applicable
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 补充信息 / Additional Context
+      description: 其他相关信息 / Any other context

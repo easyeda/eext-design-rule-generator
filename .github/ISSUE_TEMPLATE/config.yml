@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 联系技术支持
+    url: https://lceda.cn/page/feedback
+    about: 更多帮助可联系技术支持
+  - name: Contact technical support
+      url: https://easyeda.com/page/contact
+      about: For further assistance, please contact technical support.

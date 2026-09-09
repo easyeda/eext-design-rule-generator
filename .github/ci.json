@@ -1,0 +1,33 @@
+{
+  "enabled": false,
+  "pr_check": {
+    "enabled": true,
+    "trigger": "manual",
+    "locales": ["zh-cn", "global"]
+  },
+  "locales": {
+    "build": ["zh-cn", "global"],
+    "zh-cn": {
+      "readme": {
+        "auto_detect": true,
+        "cjk_threshold": 10,
+        "match": ["README_zh.md", "README.zh.md", "README_zh-*.md", "README.zh-*.md"]
+      },
+      "i18n": "locales/extensionJson/zh-Hans.json"
+    },
+    "global": {
+      "readme": {
+        "auto_detect": true,
+        "cjk_threshold": 10,
+        "match": ["README_EN.md", "README_en.md", "README.en.md", "README_EN-*.md", "README_en-*.md", "README.en-*.md"]
+      },
+      "i18n": "locales/extensionJson/en.json"
+    }
+  },
+  "node_version": "22",
+  "build_command": null,
+  "build_output_dir": "build/dist",
+  "branches": ["main", "master"],
+  "release": true,
+  "changelog": true
+}

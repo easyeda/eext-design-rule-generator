@@ -1,0 +1,32 @@
+name: 功能建议 / Feature Request
+description: 提出新功能建议 / Suggest a new feature
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢提交功能建议！请描述你的想法。
+        Thanks for suggesting a feature! Please describe your idea.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题描述 / Problem
+      description: 这个功能解决什么问题？ / What problem does this feature solve?
+      placeholder: "当...时，我需要... / When..., I need to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 期望方案 / Proposed Solution
+      description: 你希望如何实现 / How would you like it to work
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 补充信息 / Additional Context
+      description: 其他相关信息、截图或参考 / Any other context, screenshots, or references
